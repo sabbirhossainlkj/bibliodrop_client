@@ -3,24 +3,26 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@heroui/react";
 import Link from "next/link";
-import { FiArrowRight, FiBookmark, FiCompass, FiZap } from "react-icons/fi";
+import { FiArrowRight, FiBookmark, FiCompass, FiStar, FiTruck, FiZap } from "react-icons/fi";
 
 const slides = [
   {
-    badge: "#1 Book Delivery Network",
-    badgeIcon: <FiZap className="text-amber-400" size={14} />,
-    title: (
-      <>
-        Your Local Library, <br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Delivered</span>
-      </>
-    ),
-    description:
-      "Access millions of pages from community libraries and independent curators. Experience doorstep delivery within hours, not days.",
-    glowColor: "from-orange-500/20",
-    primaryCTA: "Browse Collection",
-    href: "/browse",
-  },
+  badge: "Fast & Reliable Delivery",
+  badgeIcon: <FiTruck className="text-emerald-400" size={14} />,
+  title: (
+    <>
+      Books At Your <br />
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+        Doorstep Faster
+      </span>
+    </>
+  ),
+  description:
+    "Order your favorite books with confidence. Our fast delivery system connects you with trusted book owners near you.",
+  glowColor: "from-emerald-500/20",
+  primaryCTA: "Start Reading",
+  href: "/browse",
+},
   {
     badge: "Personalized Discovery",
     badgeIcon: <FiCompass className="text-indigo-400" size={14} />,
@@ -37,20 +39,22 @@ const slides = [
     href: "/discover",
   },
   {
-    badge: "The Smart Reader Membership",
-    badgeIcon: <FiBookmark className="text-emerald-400" size={14} />,
-    title: (
-      <>
-        Borrow Smarter. <br />
-        Read <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Without Limits</span>
-      </>
-    ),
-    description:
-      "Join our global standard membership ecosystem. Seamlessly exchange, return, and track your next favorite reads in one tap.",
-    glowColor: "from-emerald-500/20",
-    primaryCTA: "Explore Pass",
-    href: "/membership",
-  },
+  badge: "Unlimited Knowledge Hub",
+  badgeIcon: <FiStar className="text-amber-400" size={14} />,
+  title: (
+    <>
+      Every Book Has <br />
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
+        A New Adventure
+      </span>
+    </>
+  ),
+  description:
+    "From novels to educational resources, unlock endless knowledge and build your personal library collection.",
+  glowColor: "from-amber-500/20",
+  primaryCTA: "View Collection",
+  href: "/browse",
+},
 ];
 
 const Banner = () => {
