@@ -58,7 +58,6 @@ const slides = [
   },
 ];
 
-// এনিমেশন ভ্যারিয়েন্ট (কনটেন্ট স্লাইড-আপ ও ফেড-ইন করার জন্য)
 const fadeUpVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
@@ -68,7 +67,6 @@ const fadeUpVariants = {
 const Banner = () => {
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // অটো স্লাইডার সেটআপ
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -80,11 +78,9 @@ const Banner = () => {
   return (
     <section className="relative w-full min-h-[85vh] flex items-center px-6 sm:px-12 md:px-24 bg-[#0F0C31] overflow-hidden">
       
-      {/* ব্যাকগ্রাউন্ড গ্লো ইফেক্ট (স্লাইড পরিবর্তনের সাথে সাথে ব্লেন্ড হবে) */}
       <div className={`absolute bottom-[-20%] left-[-10%] w-[550px] h-[550px] rounded-full bg-gradient-to-tr ${slides[activeSlide].glowColor} to-transparent blur-[140px] transition-all duration-1000`} />
       <div className="absolute top-[-30%] right-[-10%] w-[650px] h-[650px] rounded-full bg-[#4F46E5]/10 blur-[160px]" />
 
-      {/* ডেকোরেটিভ রিং */}
       <div className="absolute right-10 md:right-24 top-1/4 w-72 h-72 border border-white/[0.03] rounded-full p-8 hidden lg:block pointer-events-none">
         <div className="w-full h-full border border-dashed border-white/[0.05] rounded-full flex items-center justify-center animate-spin speed-slow" style={{ animationDuration: '40s' }}>
           <div className="w-4 h-4 bg-[#FBBF24]/20 rounded-full" />
@@ -92,7 +88,6 @@ const Banner = () => {
       </div>
 
       <div className="max-w-4xl mx-auto w-full text-left relative z-10 py-12">
-        {/* AnimatePresence নিশ্চিত করে পুরনো টেক্সট চলে যাওয়ার পর নতুন টেক্সট সুন্দরভাবে এনিমেট হবে */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeSlide}
@@ -100,10 +95,9 @@ const Banner = () => {
             animate="visible"
             exit="exit"
             variants={{
-              visible: { transition: { staggerChildren: 0.1 } } // এলিমেন্টগুলো একটার পর একটা আসবে
+              visible: { transition: { staggerChildren: 0.1 } } 
             }}
           >
-            {/* প্রিমিয়াম ব্যাজ */}
             <motion.div 
               variants={fadeUpVariants}
               className="inline-flex items-center gap-2 bg-white/[0.04] backdrop-blur-xl text-white/90 text-xs font-medium px-4 py-2 rounded-full mb-8 border border-white/[0.08] shadow-lg"
@@ -112,7 +106,6 @@ const Banner = () => {
               <span className="tracking-wide">{slides[activeSlide].badge}</span>
             </motion.div>
 
-            {/* হেডিং */}
             <motion.h1 
               variants={fadeUpVariants}
               className="text-4xl sm:text-6xl md:text-[5.2rem] font-black text-white tracking-tight leading-[1.1] mb-6 font-sans"
@@ -120,7 +113,6 @@ const Banner = () => {
               {slides[activeSlide].title}
             </motion.h1>
 
-            {/* ডেসক্রিপশন */}
             <motion.p 
               variants={fadeUpVariants}
               className="text-sm sm:text-base md:text-lg text-white/60 max-w-xl mb-12 leading-relaxed font-normal min-h-[54px]"
@@ -128,7 +120,6 @@ const Banner = () => {
               {slides[activeSlide].description}
             </motion.p>
 
-            {/* বাটন প্যানেল */}
             <motion.div 
               variants={fadeUpVariants}
               className="flex flex-wrap gap-4"
@@ -155,7 +146,6 @@ const Banner = () => {
         </AnimatePresence>
       </div>
 
-      {/* স্লাইডার ন্যাভিগেশন ডটস */}
       <div className="absolute bottom-10 left-6 sm:left-12 md:left-24 flex items-center gap-3 z-20">
         {slides.map((_, index) => (
           <button
