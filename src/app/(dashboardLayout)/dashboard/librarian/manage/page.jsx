@@ -12,6 +12,35 @@ export default function BooksPage() {
       .catch((error) => console.error(error));
   }, []);
 
+const handleDelete = async (id) => {
+  const proceed = window.confirm(
+    "Are you sure you want to delete this book?"
+  );
+
+  if (!proceed) return;
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (data.deletedCount > 0) {
+      alert("Book deleted successfully");
+
+      setBooks((prevBooks) =>
+        prevBooks.filter((book) => book._id !== id)
+      );
+    } else {
+      alert("Book not found or already deleted");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete book");
+  }
+};
+
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-sm">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
@@ -85,10 +114,9 @@ export default function BooksPage() {
                     </svg>
                   </button>
 
+                  {/* Fixed Delete Button */}
                   <button
-                    onClick={() => {
-                      console.log("Delete book id:", book._id);
-                    }}
+                    onClick={() => handleDelete(book._id)}
                     className="text-red-500 hover:text-red-700 transition-colors"
                     title="Delete"
                   >
