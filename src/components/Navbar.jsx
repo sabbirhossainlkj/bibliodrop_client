@@ -15,7 +15,27 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: session, isPending } = authClient.useSession();
+  console.log(session, isPending);
   const user = session?.user;
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Browse Books", href: "/books" },
+    // { name: "Dashboard", href: "/dashboard/user" },
+  ];
+
+  const dashboardLinks = {
+    user: "/dashboard/user",
+    librarian: "/dashboard/librarian",
+    admin: "/dashboard/admin",
+  };
+
+  if (user?.email) {
+    navLinks.push({
+      name: "Dashboard",
+      href: dashboardLinks[user?.role] || "users",
+    });
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -23,14 +43,6 @@ const Navbar = () => {
   const handleSingOut = async () => {
     await authClient.signOut();
   };
-
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Browse Books", href: "/allcourse" },
-    { name: "How It Works", href: "/how-it-works" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ];
 
   return (
     <div className="bg-[#D3D3E8]/80 backdrop-blur-md px-6 py-3 border-b border-indigo-100/40 shadow-sm sticky top-0 z-50 transition-all duration-300">
@@ -103,7 +115,7 @@ const Navbar = () => {
                 />
                 <Avatar.Fallback>{user?.name.charAt(0)}</Avatar.Fallback>
               </Avatar>
-              <span className="text-white font-medium">Hi {user.name}!</span>
+              <span className="text-gray-500 font-bold">Hi {user.name}!</span>
               <Button onClick={handleSingOut} size="sm" variant="danger">
                 SignOut
               </Button>

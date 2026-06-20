@@ -18,6 +18,7 @@ import { AiFillGoogleCircle } from "react-icons/ai";
 
 const signupPage = () => {
   const router = useRouter();
+  const [role, setRole] = useState("users");
 
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
@@ -35,6 +36,7 @@ const signupPage = () => {
       image,
       email,
       password,
+      role,
     });
 
     // console.log({ data, error });
@@ -48,7 +50,7 @@ const signupPage = () => {
     });
   };
   return (
-    <div className="w-6/12 space-y-4 mx-auto my-6 border p-6 shadow-2xl py-9 rounded-2xl">
+    <div className="w-6/12 bg-cyan-200 space-y-4 mx-auto my-6 border p-6 shadow-2xl py-9 rounded-2xl">
       <h2 className="text-2xl font-bold text-center">Create Account</h2>
 
       <Form className="flex flex-col gap-4 space-y-2" onSubmit={onSubmit}>
@@ -105,6 +107,34 @@ const signupPage = () => {
           </Description>
           <FieldError />
         </TextField>
+        {/* role selection */}
+        <div className="flex flex-col gap-4">
+          <Label>Subscription plan</Label>
+          <RadioGroup
+            onChange={(value) => setRole(value)}
+            defaultValue="users"
+            name="role"
+            orientation="horizontal"
+          >
+            <Radio value="users">
+              <Radio.Content>
+                <Radio.Control>
+                  <Radio.Indicator />
+                </Radio.Control>
+                Users
+              </Radio.Content>
+              <Description>For side projects</Description>
+            </Radio>
+            <Radio value="librarian">
+              <Radio.Content>
+                <Radio.Control>
+                  <Radio.Indicator />
+                </Radio.Control>
+                Librarian
+              </Radio.Content>
+            </Radio>
+          </RadioGroup>
+        </div>
 
         <div className="flex flex-col gap-3">
           <Button
