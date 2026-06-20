@@ -21,7 +21,6 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Browse Books", href: "/books" },
-    // { name: "Dashboard", href: "/dashboard/user" },
   ];
 
   const dashboardLinks = {
@@ -33,7 +32,7 @@ const Navbar = () => {
   if (user?.email) {
     navLinks.push({
       name: "Dashboard",
-      href: dashboardLinks[user?.role] || "users",
+      href: dashboardLinks[user?.role] || "/dashboard/user",
     });
   }
 
