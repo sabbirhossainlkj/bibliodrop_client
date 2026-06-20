@@ -1,66 +1,66 @@
 "use client";
 
+import { createBook } from "@/lib/actions/books";
+import { imageUpload } from "@/lib/ImageUpload";
+import { redirect } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast"; 
 
 export default function AddBookForm() {
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage({ type: "", text: "" });
+  const form = e.target;
+  const formData = new FormData(form);
+  
+  const toastId = toast.loading("Submitting book details...");
 
-    const form = e.target;
-    const formData = new FormData(form);
-
-    try {
-      // ১. ব্যাকএন্ড API এর মাধ্যমে ইমেজ আপলোড (সিকিউর প্রসেস)
-      //   const uploadResponse = await fetch("/api/upload", {
-      //     method: "POST",
-      //     body: formData, // ইমেজ ফাইলটি সরাসরি পাঠানো হচ্ছে
-      //   });
-
-      //   if (!uploadResponse.ok) throw new Error("Image upload failed");
-      //   const { imageUrl } = await uploadResponse.json();
-
-      // ২. বইয়ের সম্পূর্ণ ডেটা অবজেক্ট তৈরি
-      const bookData = {
-        title: formData.get("title"),
-        author: formData.get("author"),
-        description: formData.get("description"),
-        deliveryFee: Number(formData.get("deliveryFee")),
-        category: formData.get("category"),
-        image: formData.get("image"),
-        status: "Pending Approval",
-        createdAt: new Date().toISOString(),
-      };
-      console.log(bookData);
-
-      // ৩. ডাটাবেজে সেভ করার জন্য API Call
-      //   const response = await fetch("/api/books", {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify(bookData),
-      //   });
-
-      //   if (!response.ok) throw new Error("Failed to save book data");
-
-      setMessage({
-        type: "success",
-        text: "Book submitted successfully for approval!",
-      });
-      form.reset();
-    } catch (error) {
-      console.error("Submission Error:", error);
-      setMessage({
-        type: "error",
-        text: error.message || "Something went wrong!",
-      });
-    } finally {
-      setLoading(false);
+  try {
+    const file = formData.get("image");
+    
+    if (!file || file.size === 0) {
+      throw new Error("Please select a book cover image.");
     }
-  };
+
+    const uploadedImage = await imageUpload(file);
+    if (!uploadedImage?.url) {
+      throw new Error("Image upload failed. Please try again.");
+    }
+
+    const bookData = {
+      title: formData.get("title"),
+      author: formData.get("author"),
+      description: formData.get("description"),
+      deliveryFee: Number(formData.get("deliveryFee")),
+      category: formData.get("category"),
+      image: uploadedImage.url, 
+      status: "Pending Approval",
+      createdAt: new Date().toISOString(),
+    };
+
+    const res = await createBook(bookData);
+
+    if (res?.insertId) {
+      toast.success("Book submitted successfully for approval!", { id: toastId });
+      form.reset();
+      
+      setTimeout(() => {
+      }, 1500);
+      redirect("/dashboard/librarian");
+    } else {
+      throw new Error(res?.error || "Failed to add book to the database");
+    }
+
+  } catch (error) {
+    console.error("Submission Error:", error);
+    
+    toast.error(error.message || "Something went wrong!", { id: toastId });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -69,18 +69,7 @@ export default function AddBookForm() {
           Add New Book
         </h2>
 
-        {/* সাকসেস বা এরর মেসেজ অ্যালার্ট */}
-        {message.text && (
-          <div
-            className={`p-4 mb-5 rounded-lg text-sm font-medium ${
-              message.type === "success"
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-700"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+        {/* পুরানো ম্যানুয়াল অ্যালার্ট সেকশনটি বাদ দেওয়া হয়েছে কারণ এখন টোস্ট কাজ করবে */}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -168,7 +157,9 @@ export default function AddBookForm() {
               Book Cover Image
             </label>
             <input
+              type="file"
               name="image"
+              accept="image/*"
               required
               className="w-full border rounded-lg p-2.5 text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
