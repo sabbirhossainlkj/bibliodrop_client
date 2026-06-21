@@ -1,5 +1,6 @@
 "use client";
 
+import EditBook from "@/components/librariansDashboard/EditBook";
 import { useEffect, useState } from "react";
 
 export default function BooksPage() {
@@ -12,34 +13,32 @@ export default function BooksPage() {
       .catch((error) => console.error(error));
   }, []);
 
-const handleDelete = async (id) => {
-  const proceed = window.confirm(
-    "Are you sure you want to delete this book?"
-  );
+  const handleDelete = async (id) => {
+    const proceed = window.confirm(
+      "Are you sure you want to delete this book?",
+    );
 
-  if (!proceed) return;
+    if (!proceed) return;
 
-  try {
-    const res = await fetch(`http://localhost:5000/api/books/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+        method: "DELETE",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.deletedCount > 0) {
-      alert("Book deleted successfully");
+      if (data.deletedCount > 0) {
+        alert("Book deleted successfully");
 
-      setBooks((prevBooks) =>
-        prevBooks.filter((book) => book._id !== id)
-      );
-    } else {
-      alert("Book not found or already deleted");
+        setBooks((prevBooks) => prevBooks.filter((book) => book._id !== id));
+      } else {
+        alert("Book not found or already deleted");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete book");
     }
-  } catch (error) {
-    console.error(error);
-    alert("Failed to delete book");
-  }
-};
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-sm">
@@ -91,13 +90,15 @@ const handleDelete = async (id) => {
                 </td>
 
                 <td className="py-4 px-6 text-right space-x-3 whitespace-nowrap">
+                  {/* Edit Action Button */}
                   <button
                     onClick={() => {
-                      console.log("Unpublish book id:", book._id);
+                      console.log("Edit book id:", book._id);
                     }}
-                    className="text-indigo-500 hover:text-indigo-700 transition-colors"
-                    title="Unpublish"
+                    className="text-emerald-600 hover:text-emerald-800 transition-colors"
+                    title="Edit"
                   >
+                    {/* Pencil / Edit Icon */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -109,7 +110,7 @@ const handleDelete = async (id) => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
                       />
                     </svg>
                   </button>
