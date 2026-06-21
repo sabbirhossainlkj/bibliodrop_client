@@ -1,82 +1,69 @@
+import Link from "next/link";
 import React from "react";
 
-const statusStyles = {
-  published: "bg-green-50 text-green-700 border-green-200",
-  unavailable: "bg-red-50 text-red-700 border-red-200",
-  "checked out": "bg-red-50 text-red-700 border-red-200",
-};
-
 const BooksCard = ({ book }) => {
-  const {
-    title = "Untitled Book",
-    author = "Unknown Author",
-    category,
-    deliveryFee = 0,
-    image = "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
-    status = "Published",
-  } = book || {};
-
-  const fee = deliveryFee === 0 ? "Free" : `৳${deliveryFee}`;
+  // Database-er status check kore color decide korar jonno
+  const isPublished = book?.status?.toLowerCase() === "published";
 
   return (
-    <div className="group flex w-full max-w-[240px] flex-col rounded-2xl border bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100">
+    <div className="max-w-[240px] mx-auto bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden font-sans">
+      {/* Image Section */}
+      <div className="relative h-40 w-full bg-gray-100">
         <img
-          src={image}
-          alt={title}
-          loading="lazy"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          src={
+            book?.image ||
+            "https://images.unsplash.com/photo-1543002588-bfa74002ed7e"
+          }
+          alt={book?.title}
+          className="w-full h-full object-cover"
         />
-
-        {category && (
-          <span className="absolute left-2 top-2 rounded-full bg-indigo-600 px-3 py-1 text-[11px] text-white">
-            {category}
+        {/* Category Tag */}
+        {book?.category && (
+          <span className="absolute top-3 left-3 bg-[#4F46E5] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+            {book.category}
           </span>
         )}
       </div>
 
-
-      <div className="mt-3 flex flex-1 flex-col">
-
-        <h3 className="truncate text-sm font-bold text-gray-800 group-hover:text-indigo-600">
-          {title}
+      {/* Content Section */}
+      <div className="p-4 flex flex-col gap-1">
+        {/* Title */}
+        <h3 className="text-gray-800 text-lg font-bold font-serif line-clamp-1">
+          {book?.title || "Untitled"}
         </h3>
 
-        <p className="truncate text-xs text-gray-400">
-          by {author}
+        {/* Author */}
+        <p className="text-gray-400 text-xs font-medium">
+          by {book?.author || "Unknown Author"}
         </p>
 
-
-        <div className="mt-3 flex items-center justify-between">
-
-          <span className="text-sm font-bold text-amber-600">
-            {fee}
+        {/* Footer: Price & Status */}
+        <div className="flex items-center justify-between mt-4">
+          {/* Delivery Fee */}
+          <span className="text-[#B45309] text-lg font-bold">
+            ${book?.deliveryFee ? book.deliveryFee : "0"}
           </span>
 
+          {/* Status Tag */}
           <span
-            className={`rounded-full border px-2 py-1 text-[11px] capitalize ${
-              statusStyles[status.toLowerCase()] ||
-              "bg-gray-50 text-gray-700 border-gray-200"
+            className={`text-xs font-semibold px-3 py-1 rounded-full ${
+              book?.status === "Published"
+                ? "bg-[#E6F4EA] text-[#137333]"
+                : "bg-[#FEF3C7] text-[#D97706]"
             }`}
           >
-            {status}
+            {book?.status || "Pending"}
           </span>
-
         </div>
-
-
-        <button
-          className="mt-4 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+        <Link
+          href={`/books/${book._id}`}
+          className="mt-4 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 block text-center"
         >
           Book Details
-        </button>
-
+        </Link>
       </div>
-
     </div>
   );
 };
 
-
-export default React.memo(BooksCard);
+export default BooksCard;
