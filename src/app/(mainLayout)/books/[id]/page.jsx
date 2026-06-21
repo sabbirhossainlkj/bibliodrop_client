@@ -6,7 +6,7 @@ const bookDetailsPage = async ({params}) => {
     console.log('book data', book);
     return (
         <div>
-        <p>book details page</p>
+        <p>book details page {id}</p>
         </div>
     );
 };
