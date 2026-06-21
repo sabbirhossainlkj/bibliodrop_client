@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link"; // Next.js Link text redirect er jonno
 import BooksCard from "./BooksCard";
 
 const containerVariants = {
@@ -131,34 +132,65 @@ export default function FeaturedBooks() {
             No featured books available at the moment.
           </div>
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
-          >
-            {books.map((book) => (
-              <motion.div
-                key={book._id}
-                variants={itemVariants}
-                whileHover={{
-                  y: -12,
-                  scale: 1.02,
-                  transition: { duration: 0.3, ease: "easeOut" },
-                }}
-                className="group relative h-full rounded-2xl"
-              >
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl opacity-0 group-hover:opacity-30 blur-md transition duration-500"></div>
+          <>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
+            >
+              {books.map((book) => (
+                <motion.div
+                  key={book._id}
+                  variants={itemVariants}
+                  whileHover={{
+                    y: -12,
+                    scale: 1.02,
+                    transition: { duration: 0.3, ease: "easeOut" },
+                  }}
+                  className="group relative h-full rounded-2xl"
+                >
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl opacity-0 group-hover:opacity-30 blur-md transition duration-500"></div>
 
-                <div className="relative h-full flex flex-col backdrop-blur-xl bg-white/80 border border-slate-200/60 rounded-2xl p-1 shadow-sm hover:shadow-2xl hover:border-transparent transition-all duration-300">
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <BooksCard book={book} />
+                  <div className="relative h-full flex flex-col backdrop-blur-xl bg-white/80 border border-slate-200/60 rounded-2xl p-1 shadow-sm hover:shadow-2xl hover:border-transparent transition-all duration-300">
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <BooksCard book={book} />
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* --- View All Books Button Layout --- */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="mt-16 text-center"
+            >
+              <Link href="/books">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-slate-900 text-white font-semibold text-sm shadow-xl shadow-slate-900/10 hover:shadow-xl hover:shadow-indigo-500/20 bg-gradient-to-r hover:from-indigo-600 hover:to-blue-600 transition-all duration-300"
+                >
+                  View All Books
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={2} 
+                    stroke="currentColor" 
+                    className="w-4 h-4"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </motion.button>
+              </Link>
+            </motion.div>
+          </>
         )}
       </div>
     </section>
