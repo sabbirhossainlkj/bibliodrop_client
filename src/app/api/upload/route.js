@@ -9,7 +9,6 @@ export async function POST(request) {
       return NextResponse.json({ error: "No image file found" }, { status: 400 });
     }
 
-    // imgBB-তে পাঠানোর জন্য পুনরায় FormData তৈরি
     const imgbbFormData = new FormData();
     imgbbFormData.append("image", imageFile);
 

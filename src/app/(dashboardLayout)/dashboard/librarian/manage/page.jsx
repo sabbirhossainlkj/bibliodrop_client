@@ -9,7 +9,7 @@ export default function BooksPage() {
   useEffect(() => {
     fetch("http://localhost:5000/api/books")
       .then((res) => res.json())
-      .then((data) => setBooks(data))
+      .then((data) => setBooks(data.data))
       .catch((error) => console.error(error));
   }, []);
 
@@ -59,7 +59,7 @@ export default function BooksPage() {
           </thead>
 
           <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-            {books.map((book) => (
+            {books?.map((book) => (
               <tr
                 key={book._id}
                 className="hover:bg-slate-50/50 transition-colors"

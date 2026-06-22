@@ -107,7 +107,7 @@ export default async function DashboardSidebar() {
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 min-w-10 rounded-full overflow-hidden bg-zinc-800 flex items-center justify-center border border-white/10">
             {user?.image ? (
-              <image
+              <Image
                 src={user.image}
                 alt={user.name || "User avatar"}
                 fill

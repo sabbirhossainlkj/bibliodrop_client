@@ -1,11 +1,13 @@
 "use client";
-
+import { authClient } from "@/lib/auth-client";
 import { imageUpload } from "@/lib/ImageUpload";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function AddBookForm() {
+  const { data: session, isPending } = authClient.useSession();
+
   const [loading, setLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,10 +37,14 @@ export default function AddBookForm() {
         deliveryFee: Number(formData.get("deliveryFee")),
         category: formData.get("category"),
         image: uploadedImage.url,
+
+        librarianId: session?.user?.id,
+        librarianEmail: session?.user?.email,
+        librarianName: session?.user?.name,
+
         status: "Pending Approval",
         createdAt: new Date().toISOString(),
       };
-
       const res = await fetch("http://localhost:5000/api/books", {
         method: "POST",
         headers: {
@@ -46,6 +52,14 @@ export default function AddBookForm() {
         },
         body: JSON.stringify(bookData),
       });
+
+      const result = await res.json();
+
+      if (result.insertedId) {
+        toast.success("Book submitted successfully for approval!", {
+          id: toastId,
+        });
+      }
       if (res?.insertId) {
         toast.success("Book submitted successfully for approval!", {
           id: toastId,
