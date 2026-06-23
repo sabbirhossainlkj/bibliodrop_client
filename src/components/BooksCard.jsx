@@ -40,7 +40,6 @@ const BooksCard = ({ book }) => {
         duration-300
       "
     >
-      {/* Image Section */}
       <div className="relative h-44 overflow-hidden bg-gray-100">
         <motion.img
           src={
@@ -62,7 +61,6 @@ const BooksCard = ({ book }) => {
           "
         />
 
-        {/* Overlay */}
         <div
           className="
           absolute 
@@ -76,7 +74,6 @@ const BooksCard = ({ book }) => {
         "
         />
 
-        {/* Category */}
         {book?.category && (
           <span
             className="
@@ -98,7 +95,6 @@ const BooksCard = ({ book }) => {
         )}
       </div>
 
-      {/* Content */}
       <div className="p-5 space-y-3">
         <h3
           className="
@@ -122,7 +118,6 @@ const BooksCard = ({ book }) => {
           By {book?.author || "Unknown Author"}
         </p>
 
-        {/* Price + Status */}
         <div
           className="
           flex
@@ -159,7 +154,6 @@ const BooksCard = ({ book }) => {
           </span>
         </div>
 
-        {/* Button */}
         <Link
           href={`/books/${book?._id}`}
           className="

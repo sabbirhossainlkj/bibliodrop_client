@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
 
 export default function ManageDeliveries() {
-  // ডেমো ডেটা স্টেট
   const [deliveries, setDeliveries] = useState([
     {
       id: 1,
@@ -30,6 +30,8 @@ export default function ManageDeliveries() {
         delivery.id === id ? { ...delivery, status: newStatus } : delivery,
       ),
     );
+    // স্ট্যাটাস পরিবর্তন হলে সাকসেস টোস্ট
+    toast.success(`Status updated to ${newStatus}`);
   };
 
   const handleDelete = (id) => {
@@ -37,6 +39,8 @@ export default function ManageDeliveries() {
       setDeliveries((prevDeliveries) =>
         prevDeliveries.filter((item) => item.id !== id),
       );
+      // রেকর্ড ডিলিট হলে সাকসেস টোস্ট
+      toast.success("Delivery record deleted successfully");
     }
   };
 

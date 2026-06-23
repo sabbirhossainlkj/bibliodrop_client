@@ -1,11 +1,12 @@
+import AdminOverview from '@/components/adminDashboard/AdminOverview';
 import React from 'react';
 
 const adminDashboard = () => {
-    return (
-        <div>
-            <p>This is the admin dashboard.</p>
-        </div>
-    );
+  return (
+    <div>
+      <AdminOverview></AdminOverview>
+    </div>
+  );
 };
 
 export default adminDashboard;

@@ -1,36 +1,202 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📚 BiblioDrop – Online Book Delivery Management System
 
-## Getting Started
+BiblioDrop is a modern web-based platform designed to simplify book management and delivery operations. The system allows users to browse books, request deliveries, make payments, and track delivery status, while librarians and administrators can efficiently manage books, approvals, and delivery workflows.
 
-First, run the development server:
+## 🚀 Features
+
+### 👤 User Features
+
+* Browse and search published books
+* View detailed book information
+* Request book deliveries
+* Pay delivery fees securely
+* Track delivery status in real-time
+* View delivery history
+* Manage personal profile
+
+### 📚 Librarian Features
+
+* Add new books
+* Edit book information
+* Manage book inventory
+* Toggle book publish/unpublish status
+* Manage delivery requests
+* Update delivery status:
+
+  * Pending
+  * Dispatched
+  * Delivered
+
+### 🛡️ Admin Features
+
+* Approve pending books
+* Publish approved books
+* Delete inappropriate books
+* Manage users and librarians
+* Monitor system activities
+* View analytics dashboard
+
+### 📊 Dashboard Features
+
+* Full-width responsive dashboard
+* Interactive charts and graphs
+* Book statistics overview
+* Delivery analytics
+* User profile section
+* Consistent UI color theme
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+
+* Next.js 15
+* React.js
+* Tailwind CSS
+* Lucide React
+* React Hooks
+
+### Backend
+
+* Node.js
+* Express.js
+* MongoDB
+
+### Authentication
+
+* NextAuth.js / Auth.js
+
+### Payment Integration
+
+* Stripe Payment Gateway
+
+### Deployment
+
+* Vercel (Frontend)
+* Render / Railway / VPS (Backend)
+
+---
+
+## 📂 Project Structure
+
+```bash
+src/
+├── app/
+│   ├── dashboard/
+│   ├── books/
+│   ├── payment/
+│   └── profile/
+│
+├── components/
+│   ├── ui/
+│   ├── dashboard/
+│   ├── books/
+│   └── shared/
+│
+├── lib/
+├── hooks/
+├── services/
+└── utils/
+```
+
+## ⚙️ Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-username/bibliodrop.git
+```
+
+Move to the project directory:
+
+```bash
+cd bibliodrop
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env.local` file and configure environment variables:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+
+AUTH_SECRET=your_auth_secret
+
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+STRIPE_SECRET_KEY=your_stripe_secret_key
+
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_publishable_key
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔄 Delivery Workflow
 
-To learn more about Next.js, take a look at the following resources:
+1. User requests a book delivery.
+2. User pays the delivery fee.
+3. Delivery request is created with **Pending** status.
+4. Librarian updates status to **Dispatched**.
+5. Librarian updates status to **Delivered**.
+6. User can track delivery progress from the dashboard.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📖 Book Approval Workflow
 
-## Deploy on Vercel
+1. Librarian adds a new book.
+2. Book status becomes **Pending Approval**.
+3. Admin reviews the book.
+4. Admin clicks **Approve & Publish**.
+5. Book becomes publicly visible.
+6. Admin may delete rejected books.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🌟 Future Improvements
+
+* Email notifications
+* SMS delivery updates
+* Advanced filtering and search
+* Wishlist functionality
+* Book recommendation system
+* PDF eBook support
+* Multi-language support
+
+---
+
+## 👨‍💻 Author
+
+**Sabbir Hossain**
+
+### Contact
+
+* Email: [your-email@example.com](mailto:your-email@example.com)
+* GitHub: https://github.com/your-github-username
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+### ⭐ If you like this project, don't forget to star the repository!

@@ -1,14 +1,15 @@
 "use client";
 import { authClient } from "@/lib/auth-client";
 import { imageUpload } from "@/lib/ImageUpload";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function AddBookForm() {
   const { data: session, isPending } = authClient.useSession();
-
   const [loading, setLoading] = useState(false);
+  const router = useRouter(); 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,6 +46,7 @@ export default function AddBookForm() {
         status: "Pending Approval",
         createdAt: new Date().toISOString(),
       };
+
       const res = await fetch("http://localhost:5000/api/books", {
         method: "POST",
         headers: {
@@ -55,25 +57,23 @@ export default function AddBookForm() {
 
       const result = await res.json();
 
-      if (result.insertedId) {
+      if (res.ok && (result.insertedId || result.insertId)) {
+        
         toast.success("Book submitted successfully for approval!", {
           id: toastId,
         });
-      }
-      if (res?.insertId) {
-        toast.success("Book submitted successfully for approval!", {
-          id: toastId,
-        });
+
         form.reset();
 
-        setTimeout(() => {}, 1500);
-        redirect("/dashboard/librarian");
+        setTimeout(() => {
+          router.push("/dashboard/librarian");
+        }, 1500);
+
       } else {
-        throw new Error(res?.error || "Failed to add book to the database");
+        throw new Error(result?.message || "Failed to add book to the database");
       }
     } catch (error) {
       console.error("Submission Error:", error);
-
       toast.error(error.message || "Something went wrong!", { id: toastId });
     } finally {
       setLoading(false);
@@ -86,8 +86,6 @@ export default function AddBookForm() {
         <h2 className="text-3xl font-bold mb-6 text-center text-zinc-800">
           Add New Book
         </h2>
-
-        {/* পুরানো ম্যানুয়াল অ্যালার্ট সেকশনটি বাদ দেওয়া হয়েছে কারণ এখন টোস্ট কাজ করবে */}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>

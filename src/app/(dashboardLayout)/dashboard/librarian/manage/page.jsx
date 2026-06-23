@@ -2,6 +2,7 @@
 
 import EditBook from "@/components/librariansDashboard/EditBook";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -10,15 +11,22 @@ export default function BooksPage() {
     fetch("http://localhost:5000/api/books")
       .then((res) => res.json())
       .then((data) => setBooks(data.data))
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        toast.error("Failed to load books!"); // ডাটা লোড না হলে এরর টোস্ট
+      });
   }, []);
 
   const handleDelete = async (id) => {
+    // ব্রাউজারের কনফার্মেশন ডায়ালগ
     const proceed = window.confirm(
       "Are you sure you want to delete this book?",
     );
 
     if (!proceed) return;
+
+    // ডিলিট করার লোডিং টোস্ট চালু করা হলো
+    const toastId = toast.loading("Deleting book...");
 
     try {
       const res = await fetch(`http://localhost:5000/api/books/${id}`, {
@@ -27,16 +35,20 @@ export default function BooksPage() {
 
       const data = await res.json();
 
-      if (data.deletedCount > 0) {
-        alert("Book deleted successfully");
+      if (res.ok && data.deletedCount > 0) {
+        // সফলভাবে ডিলিট হলে সাকসেস টোস্ট
+        toast.success("Book deleted successfully", { id: toastId });
 
+        // স্টেট থেকে বইটিকে রিমুভ করা
         setBooks((prevBooks) => prevBooks.filter((book) => book._id !== id));
       } else {
-        alert("Book not found or already deleted");
+        // ডাটাবেজে না পাওয়া গেলে এরর টো型স্ট
+        toast.error("Book not found or already deleted", { id: toastId });
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to delete book");
+      // নেটওয়ার্ক বা সার্ভার এরর হলে
+      toast.error("Failed to delete book", { id: toastId });
     }
   };
 
@@ -90,7 +102,6 @@ export default function BooksPage() {
                 </td>
 
                 <td className="py-4 px-6 text-right space-x-3 whitespace-nowrap">
-                  {/* Edit Action Button */}
                   <button
                     onClick={() => {
                       console.log("Edit book id:", book._id);
@@ -98,7 +109,6 @@ export default function BooksPage() {
                     className="text-emerald-600 hover:text-emerald-800 transition-colors"
                     title="Edit"
                   >
-                    {/* Pencil / Edit Icon */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -115,7 +125,7 @@ export default function BooksPage() {
                     </svg>
                   </button>
 
-                  {/* Fixed Delete Button */}
+                  {/* Delete Button */}
                   <button
                     onClick={() => handleDelete(book._id)}
                     className="text-red-500 hover:text-red-700 transition-colors"

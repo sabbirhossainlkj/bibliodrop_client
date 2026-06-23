@@ -11,7 +11,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-// রি-রেন্ডার হওয়া রোধ করতে স্ট্যাটিক ডেটা কম্পোনেন্টের বাইরে রাখা হয়েছে
 const EARNINGS_DATA = [
   { month: "Jan", earnings: 5000 },
   { month: "Feb", earnings: 7000 },
@@ -37,7 +36,6 @@ export default function DashboardOverview() {
   return (
     <div className="space-y-8 p-4 md:p-6 bg-gray-50/50 min-h-screen rounded-2xl">
       
-      {/* ১. কুইক স্ট্যাটস সেকশন (Quick Statistics) */}
       <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Quick Statistics">
         {STATS_ITEMS.map((stat) => (
           <div 
@@ -54,7 +52,6 @@ export default function DashboardOverview() {
         ))}
       </section>
 
-      {/* ২. মান্থলি আর্নিংস চার্ট সেকশন (Recharts BarChart) */}
       <section className="rounded-xl bg-white p-6 shadow-sm border border-gray-100" aria-label="Earnings Overview">
         <h2 className="mb-5 text-lg font-semibold text-gray-800">
           Monthly Earnings Overview
@@ -96,7 +93,6 @@ export default function DashboardOverview() {
         </div>
       </section>
 
-      {/* ৩. মোস্ট রিকোয়েস্টেড বুকস লিস্ট (Mini-list) */}
       <section className="rounded-xl bg-white p-6 shadow-sm border border-gray-100" aria-label="Top Books">
         <h2 className="mb-5 text-lg font-semibold text-gray-800">
           Most Requested Books

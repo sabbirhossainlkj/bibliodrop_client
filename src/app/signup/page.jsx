@@ -37,7 +37,6 @@ const signupPage = () => {
       email,
       password,
       role,
-      plan,
     });
 
     // console.log({ data, error });

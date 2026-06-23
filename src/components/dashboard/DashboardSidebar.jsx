@@ -39,7 +39,7 @@ export default async function DashboardSidebar() {
       },
       {
         icon: BookOpen,
-        href: "/dashboard/user/list",
+        href: "/dashboard/user/readinglist",
         label: "My Reading List",
       },
       {
@@ -74,7 +74,7 @@ export default async function DashboardSidebar() {
       { icon: LayoutDashboard, href: "/dashboard/admin", label: "Overview" },
       {
         icon: ClipboardCheck,
-        href: "/dashboard/admin/book",
+        href: "/dashboard/admin/approve",
         label: "Book Approval Queue",
       },
       {
@@ -84,7 +84,7 @@ export default async function DashboardSidebar() {
       },
       {
         icon: Library,
-        href: "/dashboard/admin/managebook",
+        href: "/dashboard/admin/allbooks",
         label: "Manage All Books",
       },
       {
@@ -121,16 +121,15 @@ export default async function DashboardSidebar() {
 
           <div className="overflow-hidden">
             <p className="text-white text-sm font-bold truncate leading-tight">
-              {user?.name || "Gamer/User"}
+              {user.name || "Gamer/User"}
             </p>
             <span
-              className={`text-[10px] font-bold uppercase tracking-wider ${
-                role === "users"
+              className={`text-[10px] font-bold uppercase tracking-wider ${role === "users"
                   ? "text-yellow-400"
                   : role === "librarian"
                     ? "text-green-400"
                     : "text-red-400"
-              }`}
+                }`}
             >
               {role === "users" ? "User" : role}
             </span>

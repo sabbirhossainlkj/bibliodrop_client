@@ -94,7 +94,6 @@ export default function WhyChooseUs() {
               transition
               "
             >
-
               <div
                 className={`
                 w-20 h-20
@@ -136,7 +135,6 @@ export default function WhyChooseUs() {
               >
                 {item.description}
               </p>
-
 
               <div
                 className="

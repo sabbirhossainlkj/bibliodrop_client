@@ -13,7 +13,7 @@ export default async function SuccessPage({ searchParams }) {
   let session;
   try {
     session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ["payment_intent"], // যদি প্রোডাক্টের ডিটেইলস না লাগে, শুধু payment_intent রাখলে রেসপন্স ফাস্ট হবে
+      expand: ["payment_intent"],
     });
   } catch (error) {
     console.error("Stripe Session Error:", error);
@@ -33,7 +33,6 @@ export default async function SuccessPage({ searchParams }) {
     return (
       <section style={styles.container}>
         <div style={styles.card}>
-          {/* Success Checkmark Icon */}
           <div style={styles.iconContainer}>
             <svg
               style={styles.icon}
@@ -51,7 +50,6 @@ export default async function SuccessPage({ searchParams }) {
             </svg>
           </div>
 
-          {/* Heading & Text */}
           <h2 style={styles.heading}>Payment Successful!</h2>
           <p style={styles.subtext}>
             Thank you for your purchase. Your order has been successfully
@@ -60,13 +58,11 @@ export default async function SuccessPage({ searchParams }) {
 
           <div style={styles.divider} />
 
-          {/* Info Box */}
           <div style={styles.infoBox}>
             <span style={styles.infoLabel}>CONFIRMATION EMAIL SENT TO</span>
             <p style={styles.infoEmail}>{customerEmail}</p>
           </div>
 
-          {/* Support Info */}
           <p style={styles.supportText}>
             Have questions? Contact us at{" "}
             <a href="mailto:orders@example.com" style={styles.link}>
@@ -74,7 +70,6 @@ export default async function SuccessPage({ searchParams }) {
             </a>
           </p>
 
-          {/* Action Button */}
           <div style={styles.buttonContainer}>
             <Link href="/" style={styles.button}>
               Go Back Home
@@ -85,7 +80,6 @@ export default async function SuccessPage({ searchParams }) {
     );
   }
 
-  // Fallback UI
   return (
     <div style={styles.container}>
       <p style={{ color: "#666" }}>Verifying your payment status...</p>
@@ -93,7 +87,6 @@ export default async function SuccessPage({ searchParams }) {
   );
 }
 
-// 🎨 JS ইন-লাইন স্টাইল অবজেক্ট (Pure CSS)
 const styles = {
   container: {
     display: "flex",

@@ -9,13 +9,29 @@ export default function PaymentPage() {
   const bookId = params.get("bookId");
 
   const [loading, setLoading] = useState(false);
+  const handlePayment = async () => {
+    const deliveryData = {
+      userId: session.user.id,
+      userEmail: session.user.email,
+      bookId: book._id,
+      bookTitle: book.title,
+      deliveryFee: book.deliveryFee,
+    };
+
+    await fetch("http://localhost:5000/api/deliveries", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(deliveryData),
+    });
+
+    router.push("/dashboard/delivery-history");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4">
-      
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-        
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
             <Truck className="text-indigo-600 w-8 h-8" />
@@ -30,42 +46,25 @@ export default function PaymentPage() {
           </p>
         </div>
 
-
-        {/* Payment Card */}
         <div className="bg-gray-50 rounded-2xl p-5 mb-6">
-          
           <div className="flex justify-between mb-3">
-            <span className="text-gray-600">
-              Delivery Fee
-            </span>
+            <span className="text-gray-600">Delivery Fee</span>
 
-            <span className="font-bold text-indigo-600">
-              $5.00
-            </span>
+            <span className="font-bold text-indigo-600">$5.00</span>
           </div>
-
 
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <ShieldCheck size={18} />
             Secure payment powered by Stripe
           </div>
-
         </div>
 
-
-        {/* Payment Form */}
         <form
           action="/api/checkout_sessions"
           method="POST"
           onSubmit={() => setLoading(true)}
         >
-
-          <input
-            type="hidden"
-            name="bookId"
-            value={bookId || ""}
-          />
-
+          <input type="hidden" name="bookId" value={bookId || ""} />
 
           <button
             disabled={loading}
@@ -87,31 +86,21 @@ export default function PaymentPage() {
             shadow-lg
             "
           >
-
-            {
-              loading ? (
-                "Redirecting..."
-              ) : (
-                <>
-                  <CreditCard size={20}/>
-                  Pay Now
-                </>
-              )
-            }
-
+            {loading ? (
+              "Redirecting..."
+            ) : (
+              <>
+                <CreditCard size={20} />
+                Pay Now
+              </>
+            )}
           </button>
-
         </form>
 
-
-        {/* Footer */}
         <p className="text-center text-xs text-gray-400 mt-6">
           Your payment is safe and encrypted 🔒
         </p>
-
-
       </div>
-
     </div>
   );
 }

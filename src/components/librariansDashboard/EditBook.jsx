@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react"; // useEffect যোগ করা হয়েছে
+import { useState, useEffect } from "react"; 
 import { useRouter } from "next/navigation";
 
 export default function EditBookForm({ book }) {
   const router = useRouter();
 
-  // ফর্মের স্টেট
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -14,7 +13,6 @@ export default function EditBookForm({ book }) {
     description: "",
   });
 
-  // ট্রিক এবং ফিক্স: যখনই প্রপ্স থেকে নতুন 'book' ডাটা আসবে, স্টেট আপডেট হয়ে যাবে
   useEffect(() => {
     if (book) {
       setFormData({
@@ -26,7 +24,6 @@ export default function EditBookForm({ book }) {
     }
   }, [book]);
 
-  // ইনপুট চেঞ্জ হ্যান্ডলার
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -34,13 +31,12 @@ export default function EditBookForm({ book }) {
     }));
   };
 
-  // সাবমিট হ্যান্ডলার
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/books/${book?._id || book?.id}`, // ব্যাকআপ আইডি হ্যান্ডলিং
+        `http://localhost:5000/api/books/${book?._id || book?.id}`,
         {
           method: "PATCH",
           headers: {
@@ -58,7 +54,6 @@ export default function EditBookForm({ book }) {
 
       alert("Book Updated Successfully");
 
-      // Next.js রাউটার রিফ্রেশ এবং রিডাইরেক্ট
       router.refresh();
       router.push(`/books/${book?._id || book?.id}`);
     } catch (error) {

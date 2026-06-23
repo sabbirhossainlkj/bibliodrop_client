@@ -8,6 +8,7 @@ import { FaBookOpen } from "react-icons/fa";
 import { FiMoon, FiMenu, FiX } from "react-icons/fi";
 import { authClient } from "@/lib/auth-client";
 import { useSession } from "@/lib/auth-client";
+import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -40,8 +41,15 @@ const Navbar = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // SignOut টোস্ট ইমপ্লিমেন্টেশন
   const handleSingOut = async () => {
-    await authClient.signOut();
+    // toast.promise ব্যবহার করে একবারে loading, success, এবং error হ্যান্ডেল করা হলো
+    await toast.promise(authClient.signOut(), {
+      loading: "Signing out...",
+      success: "Signed out successfully!",
+      error: "Failed to sign out. Try again!",
+    });
   };
 
   return (
@@ -60,17 +68,17 @@ const Navbar = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 bg-[#C7C7E2]/40 p-1.5 rounded-2xl border border-white/20">
+          
           {navLinks.map((link) => {
             const isActive = mounted && pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative ${
-                  isActive
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative ${isActive
                     ? "bg-white text-[#4F46E5] shadow-md scale-[1.02]"
                     : "text-[#555A64] hover:text-[#1E1E2F] hover:bg-white/20"
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>
@@ -113,10 +121,10 @@ const Navbar = () => {
                   alt="sabbir hossain"
                   src={user?.image}
                 />
-                <Avatar.Fallback>{user?.name.charAt(0)}</Avatar.Fallback>
+                <Avatar.Fallback>{user?.name?.charAt(0)}</Avatar.Fallback>
               </Avatar>
               <span className="text-gray-500 font-bold">Hi {user.name}!</span>
-              <Button onClick={handleSingOut} size="sm" variant="danger">
+              <Button onClick={handleSingOut} size="sm" color="danger">
                 SignOut
               </Button>
             </div>
@@ -150,40 +158,56 @@ const Navbar = () => {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className={`px-4 py-3 rounded-xl text-base font-medium transition-all ${
-                  isActive
+                className={`px-4 py-3 rounded-xl text-base font-medium transition-all ${isActive
                     ? "bg-[#6366F1]/10 text-[#4F46E5] font-bold"
                     : "text-[#6B7280] hover:bg-gray-50 hover:text-[#1E1E2F]"
-                }`}
+                  }`}
               >
                 {link.name}
               </Link>
             );
           })}
           <hr className="border-gray-100 my-1" />
-          <div className="grid grid-cols-2 gap-2">
-            <Link
-              href="/signin"
-              onClick={() => setIsOpen(false)}
-              className="w-full"
-            >
+
+          {user ? (
+            <div className="flex flex-col gap-2 p-2 bg-gray-50 rounded-xl">
+              <span className="text-sm font-bold text-gray-700 text-center">
+                Hi {user.name}!
+              </span>
               <Button
-                variant="bordered"
-                className="w-full border-gray-200 text-[#4F46E5] rounded-xl font-medium"
+                onClick={handleSingOut}
+                size="sm"
+                color="danger"
+                className="w-full"
               >
-                Login
+                SignOut
               </Button>
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setIsOpen(false)}
-              className="w-full"
-            >
-              <Button className="w-full bg-[#6366F1] text-white rounded-xl font-medium shadow-md">
-                Register
-              </Button>
-            </Link>
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/signin"
+                onClick={() => setIsOpen(false)}
+                className="w-full"
+              >
+                <Button
+                  variant="bordered"
+                  className="w-full border-gray-200 text-[#4F46E5] rounded-xl font-medium"
+                >
+                  Login
+                </Button>
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setIsOpen(false)}
+                className="w-full"
+              >
+                <Button className="w-full bg-[#6366F1] text-white rounded-xl font-medium shadow-md">
+                  Register
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

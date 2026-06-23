@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link"; // Next.js Link text redirect er jonno
+import Link from "next/link";
 import BooksCard from "./BooksCard";
 
 const containerVariants = {
@@ -89,7 +89,6 @@ export default function FeaturedBooks() {
 
   return (
     <section className="relative overflow-hidden py-24 bg-slate-50/50">
-      {/* 1. Interactive Mesh Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-70"></div>
 
       <motion.div
@@ -162,7 +161,6 @@ export default function FeaturedBooks() {
               ))}
             </motion.div>
 
-            {/* --- View All Books Button Layout --- */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

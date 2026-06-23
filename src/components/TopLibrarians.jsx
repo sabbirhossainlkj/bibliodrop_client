@@ -7,21 +7,24 @@ const topLibrarians = [
   {
     id: 1,
     name: "Sarah Johnson",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80",
     deliveries: 120,
     rank: "🥇",
   },
   {
     id: 2,
     name: "Michael Brown",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
     deliveries: 105,
     rank: "🥈",
   },
   {
     id: 3,
     name: "Emily Davis",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&auto=format&fit=crop&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&auto=format&fit=crop&q=80",
     deliveries: 98,
     rank: "🥉",
   },
@@ -122,9 +125,7 @@ export default function TopLibrarians() {
                   {librarian.name}
                 </h3>
 
-                <p className="text-gray-500 mt-2">
-                  Active Book Provider
-                </p>
+                <p className="text-gray-500 mt-2">Active Book Provider</p>
 
                 <div className="mt-6">
                   <p className="text-sm uppercase tracking-wider text-gray-400">
