@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   DollarSign,
@@ -11,50 +11,45 @@ import {
 } from "lucide-react";
 
 const ViewAllTransactions = () => {
-  const [transactions, setTransactions] = useState([
-    {
-      _id: "TXN98347102",
-      userEmail: "rahim.khan@gmail.com",
-      librarianEmail: "james.rodriguez@library.com",
-      amount: 30.0,
-      date: "2026-06-20",
-    },
-    {
-      _id: "TXN98347103",
-      userEmail: "sultana.bibi@yahoo.com",
-      librarianEmail: "sarah.mitchell@library.com",
-      amount: 58.0,
-      date: "2026-06-21",
-    },
-    {
-      _id: "TXN98347104",
-      userEmail: "tanvir.ahmed@gmail.com",
-      librarianEmail: "james.rodriguez@library.com",
-      amount: 4.5,
-      date: "2026-06-22",
-    },
-    {
-      _id: "TXN98347105",
-      userEmail: "arif.hasan@outlook.com",
-      librarianEmail: "sarah.mitchell@library.com",
-      amount: 12.0,
-      date: "2026-06-23",
-    },
-  ]);
-
+  const [transactions, setTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/transactions", { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to fetch transactions");
+        const data = await res.json();
+        setTransactions(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch transactions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
 
   const filteredTransactions = transactions.filter(
     (txn) =>
-      txn._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      txn.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      txn.librarianEmail.toLowerCase().includes(searchTerm.toLowerCase()),
+      (txn._id?.toString().toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (txn.userEmail?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (txn.librarianEmail?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
   );
 
   const totalRevenue = filteredTransactions.reduce(
-    (acc, curr) => acc + curr.amount,
+    (acc, curr) => acc + (curr.amount || 0),
     0,
   );
+
+  if (loading) {
+    return (
+      <div className="p-10 text-center text-gray-500">
+        Loading transactions...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8 bg-[#fafafa] min-h-screen font-sans">

@@ -1,19 +1,14 @@
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { Plane } from "lucide-react";
 
 const client = new MongoClient(process.env.MONGODB_URI);
 const db = client.db(process.env.AUTH_DB_NAME);
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db, {
-    // Optional: if you don't provide a client, database transactions won't be enabled.
-    client,
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  database: mongodbAdapter(db, { client }),
+  emailAndPassword: { enabled: true },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENTID,
@@ -23,9 +18,11 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        defaultValue: "users",
+        type: "string",
+        defaultValue: "user",
+        returned: true,
+        input: true,
       },
-
     },
   },
 });

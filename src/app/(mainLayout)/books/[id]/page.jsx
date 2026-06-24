@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import DeliveryButton from "@/components/DeliveryButton";
 
 const bookDetailsPage = async ({ params }) => {
   const { id } = await params;
@@ -29,11 +30,24 @@ const bookDetailsPage = async ({ params }) => {
   const isCheckedOut = book.status === "Checked Out";
 
   const isOwner =
-    currentUser &&
-    (currentUser.email === book.librarianEmail ||
-      currentUser.id === book.librarianId);
+    currentUser && currentUser.email === book.librarianEmail;
 
-  const isButtonDisabled = isCheckedOut || isOwner;
+  let alreadyOrdered = false;
+  if (currentUser && !isOwner) {
+    try {
+      const params = new URLSearchParams({ bookId: book._id });
+      if (currentUser.id) params.set("userId", currentUser.id);
+      if (currentUser.email) params.set("userEmail", currentUser.email);
+      const deliveryRes = await fetch(
+        `http://localhost:5000/api/deliveries/check?${params}`,
+        { cache: "no-store" }
+      );
+      const deliveryData = await deliveryRes.json();
+      alreadyOrdered = deliveryData.exists === true;
+    } catch { /* ignore */ }
+  }
+
+  const isButtonDisabled = isCheckedOut || isOwner || alreadyOrdered;
 
   const formattedDate = new Date(book.createdAt).toLocaleDateString("en-US", {
     month: "short",
@@ -47,6 +61,7 @@ const bookDetailsPage = async ({ params }) => {
     try {
       const deleteRes = await fetch(`http://localhost:5000/api/books/${id}`, {
         method: "DELETE",
+        headers: { "x-internal-secret": process.env.INTERNAL_SECRET },
       });
       if (deleteRes.ok) {
         revalidatePath("/books");
@@ -191,7 +206,7 @@ const bookDetailsPage = async ({ params }) => {
                 disabled
                 className="flex-1 bg-gray-300 text-gray-500 font-medium py-3.5 px-6 rounded-xl cursor-not-allowed"
               >
-                {isCheckedOut ? "Checked Out" : "Your Own Book"}
+                {isCheckedOut ? "Checked Out" : isOwner ? "Your Own Book" : "Already Ordered"}
               </button>
             ) : (
               <Link

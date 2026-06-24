@@ -1,79 +1,58 @@
 "use client";
-import React, { useState } from "react";
-import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
+import { authClient } from "@/lib/auth-client";
+import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+
+const STATUS_FLOW = ["Pending", "Dispatched", "Delivered"];
 
 export default function ManageDeliveries() {
-  const [deliveries, setDeliveries] = useState([
-    {
-      id: 1,
-      clientName: "Dominique Shepard",
-      clientEmail: "duhecuhix@mailinator.com",
-      bookTitle: "Quia sunt eum incidu",
-      date: "Jun 15, 2026",
-      status: "Delivered",
-    },
-    {
-      id: 2,
-      clientName: "Ahsan Habib",
-      clientEmail: "ahsan@example.com",
-      bookTitle: "Learn React in 30 Days",
-      date: "Jun 22, 2026",
-      status: "Pending",
-    },
-  ]);
-
+  const { data: session, isPending } = authClient.useSession();
+  const [deliveries, setDeliveries] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const handleStatusChange = (id, newStatus) => {
-    setDeliveries((prevDeliveries) =>
-      prevDeliveries.map((delivery) =>
-        delivery.id === id ? { ...delivery, status: newStatus } : delivery,
-      ),
-    );
-    // স্ট্যাটাস পরিবর্তন হলে সাকসেস টোস্ট
-    toast.success(`Status updated to ${newStatus}`);
-  };
+  useEffect(() => {
+    if (isPending || !session?.user?.email) return;
+    fetch(`http://localhost:5000/api/deliveries?librarianEmail=${encodeURIComponent(session.user.email)}`, { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setDeliveries(Array.isArray(data) ? data : []))
+      .catch(() => toast.error("Failed to load deliveries"));
+  }, [session, isPending]);
 
-  const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete this delivery record?")) {
-      setDeliveries((prevDeliveries) =>
-        prevDeliveries.filter((item) => item.id !== id),
-      );
-      // রেকর্ড ডিলিট হলে সাকসেস টোস্ট
-      toast.success("Delivery record deleted successfully");
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await fetch(`http://localhost:5000/api/deliveries/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+      setDeliveries((prev) => prev.map((d) => d._id === id ? { ...d, status: newStatus } : d));
+      toast.success(`Status updated to ${newStatus}`);
+    } catch {
+      toast.error("Failed to update status");
     }
   };
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "Dispatched":
-        return "bg-blue-100 text-blue-800";
-      case "Delivered":
-        return "bg-green-100 text-green-700";
-      default:
-        return "bg-gray-100 text-gray-800";
+      case "Pending": return "bg-yellow-100 text-yellow-800";
+      case "Dispatched": return "bg-blue-100 text-blue-800";
+      case "Delivered": return "bg-green-100 text-green-700";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
-  const filteredDeliveries = deliveries.filter((delivery) => {
-    return statusFilter === "All" || delivery.status === statusFilter;
-  });
+  const filtered = deliveries.filter((d) => statusFilter === "All" || d.status === statusFilter);
 
   return (
     <div className="p-6 max-w-5xl mx-auto bg-slate-50 min-h-screen rounded-xl space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-6 rounded-xl shadow-sm border border-slate-100">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
-            Manage Deliveries
-          </h1>
-          <p className="text-slate-500 mt-1">
-            Update delivery status for your book requests.
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900">Manage Deliveries</h1>
+          <p className="text-slate-500 mt-1">Update delivery status for your book requests.</p>
         </div>
         <div className="mt-4 md:mt-0 bg-blue-50 border border-blue-100 px-4 py-2 rounded-lg text-blue-700 text-sm font-medium">
-          Total Deliveries: {deliveries.length}
+          Total: {deliveries.length}
         </div>
       </div>
 
@@ -81,7 +60,7 @@ export default function ManageDeliveries() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg px-4 py-2 outline-none cursor-pointer w-full sm:w-auto"
+          className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg px-4 py-2 outline-none"
         >
           <option value="All">All Status</option>
           <option value="Pending">Pending</option>
@@ -98,85 +77,42 @@ export default function ManageDeliveries() {
               <th className="px-6 py-4">Book</th>
               <th className="px-6 py-4">Date</th>
               <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Actions</th>
-              <th className="px-6 py-4 text-right">Remove</th>
+              <th className="px-6 py-4">Update</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700 bg-white">
-            {filteredDeliveries.length > 0 ? (
-              filteredDeliveries.map((delivery) => (
-                <tr
-                  key={delivery.id}
-                  className="hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-slate-800">
-                      {delivery.clientName}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-0.5">
-                      {delivery.clientEmail}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 max-w-xs break-words">
-                    <span className="font-medium text-slate-800">
-                      {delivery.bookTitle}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-slate-500">
-                    {delivery.date}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyle(delivery.status)}`}
-                    >
-                      {delivery.status}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {delivery.status === "Delivered" ? (
-                      <div className="flex items-center gap-1.5 text-green-600 font-medium text-xs">
-                        <span className="bg-green-500 text-white rounded p-0.5 text-[10px]">
-                          ✓
-                        </span>
-                        Complete
-                      </div>
-                    ) : (
-                      <select
-                        value={delivery.status}
-                        onChange={(e) =>
-                          handleStatusChange(delivery.id, e.target.value)
-                        }
-                        className="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 cursor-pointer outline-none"
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Dispatched">Dispatched</option>
-                        <option value="Delivered">Delivered</option>
-                      </select>
-                    )}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <button
-                      onClick={() => handleDelete(delivery.id)}
-                      className="text-red-500 hover:text-red-700 text-xs font-medium transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="text-center py-8 text-slate-400 italic"
-                >
-                  No delivery records found.
+            {filtered.length > 0 ? filtered.map((delivery) => (
+              <tr key={delivery._id} className="hover:bg-slate-50/50 transition-colors">
+                <td className="px-6 py-4">
+                  <div className="font-medium text-slate-800">{delivery.clientName}</div>
+                  <div className="text-xs text-slate-400">{delivery.clientEmail}</div>
                 </td>
+                <td className="px-6 py-4 font-medium text-slate-800">{delivery.bookTitle}</td>
+                <td className="px-6 py-4 text-slate-500">
+                  {delivery.requestDate ? new Date(delivery.requestDate).toLocaleDateString() : "N/A"}
+                </td>
+                <td className="px-6 py-4">
+                  <span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${getStatusStyle(delivery.status)}`}>
+                    {delivery.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  {delivery.status === "Delivered" ? (
+                    <span className="text-green-600 font-medium text-xs">✓ Complete</span>
+                  ) : (
+                    <select
+                      value={delivery.status}
+                      onChange={(e) => handleStatusChange(delivery._id, e.target.value)}
+                      className="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg p-1.5 outline-none cursor-pointer"
+                    >
+                      {STATUS_FLOW.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  )}
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan="5" className="text-center py-8 text-slate-400 italic">No delivery records found.</td>
               </tr>
             )}
           </tbody>

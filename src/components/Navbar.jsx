@@ -8,6 +8,7 @@ import { FaBookOpen } from "react-icons/fa";
 import { FiMoon, FiMenu, FiX } from "react-icons/fi";
 import { authClient } from "@/lib/auth-client";
 import { useSession } from "@/lib/auth-client";
+import { clearToken } from "@/lib/api";
 import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
 
 const Navbar = () => {
@@ -44,7 +45,7 @@ const Navbar = () => {
 
   // SignOut টোস্ট ইমপ্লিমেন্টেশন
   const handleSingOut = async () => {
-    // toast.promise ব্যবহার করে একবারে loading, success, এবং error হ্যান্ডেল করা হলো
+    clearToken();
     await toast.promise(authClient.signOut(), {
       loading: "Signing out...",
       success: "Signed out successfully!",

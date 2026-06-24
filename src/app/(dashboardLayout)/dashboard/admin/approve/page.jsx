@@ -1,60 +1,42 @@
 "use client";
-import React, { useState } from "react";
-import {
-  Check,
-  Trash2,
-  BookOpen,
-  AlertCircle,
-  Calendar,
-  User,
-  DollarSign
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Check, Trash2, AlertCircle } from "lucide-react";
 
 const ApprovePage = () => {
-  const [pendingBooks, setPendingBooks] = useState([
-    {
-      id: 1,
-      title: "Voluptatibus dolor q",
-      author: "Fuga Quaerat commod",
-      category: "History",
-      fee: 30.00,
-      librarian: "James Rodriguez",
-      requestedDate: "Jun 15, 2026",
-    },
-    {
-      id: 2,
-      title: "The Silent Patient",
-      author: "Alex Michaelides",
-      category: "Thriller",
-      fee: 15.00,
-      librarian: "Sultana Razia",
-      requestedDate: "Jun 22, 2026",
-    },
-    {
-      id: 3,
-      title: "Atomic Habits",
-      author: "James Clear",
-      category: "Self-Help",
-      fee: 0.00,
-      librarian: "Tanvir Hasan",
-      requestedDate: "Jun 20, 2026",
-    },
-  ]);
+  const [pendingBooks, setPendingBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleApprove = (id, title) => {
-    alert(`"${title}" has been successfully Approved & Published!`);
-    setPendingBooks(pendingBooks.filter((book) => book.id !== id));
-  };
+  useEffect(() => {
+    fetch("http://localhost:5000/api/books?status=Pending Approval")
+      .then((res) => res.json())
+      .then((data) => setPendingBooks(data.data || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
-  const handleDelete = (id, title) => {
-    if (
-      window.confirm(
-        `Are you sure you want to permanently delete "${title}" from the queue?`,
-      )
-    ) {
-      setPendingBooks(pendingBooks.filter((book) => book.id !== id));
+  const handleApprove = async (id, title) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/books/publish/${id}`, { method: "PATCH", credentials: "include" });
+      if (!res.ok) throw new Error();
+      setPendingBooks((prev) => prev.filter((b) => b._id !== id));
+      alert(`"${title}" has been approved & published!`);
+    } catch {
+      alert("Failed to approve book");
     }
   };
+
+  const handleDelete = async (id, title) => {
+    if (!window.confirm(`Delete "${title}" from the queue?`)) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) throw new Error();
+      setPendingBooks((prev) => prev.filter((b) => b._id !== id));
+    } catch {
+      alert("Failed to delete book");
+    }
+  };
+
+  if (loading) return <div className="p-10 text-center text-gray-500">Loading...</div>;
 
   return (
     <div className="p-6 md:p-8 bg-[#f8fafc] min-h-screen text-[#1e293b] font-sans antialiased">
@@ -106,59 +88,33 @@ const ApprovePage = () => {
 
               <tbody className="divide-y divide-slate-100 text-sm font-medium text-slate-700">
                 {pendingBooks.map((book) => (
-                  <tr
-                    key={book.id}
-                    className="hover:bg-slate-50/40 transition-colors group"
-                  >
-                    {/* Book Title */}
-                    <td className="py-5 px-6 font-bold text-slate-800">
-                      {book.title}
-                    </td>
-
-                    {/* Author */}
-                    <td className="py-5 px-6 text-slate-500 font-normal">
-                      {book.author}
-                    </td>
-
-                    {/* Category */}
+                  <tr key={book._id} className="hover:bg-slate-50/40 transition-colors group">
+                    <td className="py-5 px-6 font-bold text-slate-800">{book.title}</td>
+                    <td className="py-5 px-6 text-slate-500 font-normal">{book.author}</td>
                     <td className="py-5 px-6">
                       <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-600 border border-purple-100/50">
                         {book.category}
                       </span>
                     </td>
-
-                    {/* Fee */}
                     <td className="py-5 px-6 text-slate-800 font-bold">
-                      ${book.fee.toFixed(2)}
+                      ${Number(book.deliveryFee || 0).toFixed(2)}
                     </td>
-
-                    {/* Librarian */}
-                    <td className="py-5 px-6 text-slate-600 font-normal">
-                      {book.librarian}
-                    </td>
-
-                    {/* Date */}
+                    <td className="py-5 px-6 text-slate-600 font-normal">{book.librarianName || "N/A"}</td>
                     <td className="py-5 px-6 text-slate-500 font-normal">
-                      {book.requestedDate}
+                      {book.createdAt ? new Date(book.createdAt).toLocaleDateString() : "N/A"}
                     </td>
-
-                    {/* Actions */}
                     <td className="py-5 px-6 text-center">
                       <div className="flex items-center justify-center gap-3">
-                        {/* Approve Button */}
                         <button
-                          onClick={() => handleApprove(book.id, book.title)}
+                          onClick={() => handleApprove(book._id, book.title)}
                           className="inline-flex items-center gap-1 bg-[#6366f1] text-white hover:bg-[#4f46e5] px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all"
                         >
                           <Check size={14} strokeWidth={3} />
                           Approve
                         </button>
-
-                        {/* Delete Button */}
                         <button
-                          onClick={() => handleDelete(book.id, book.title)}
+                          onClick={() => handleDelete(book._id, book.title)}
                           className="inline-flex items-center gap-1 px-3 py-2 text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100 hover:text-rose-700 rounded-xl text-xs font-bold transition-all"
-                          title="Delete Request"
                         >
                           <Trash2 size={14} />
                           Delete

@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { saveToken } from "@/lib/api";
 import {
   Button,
   FieldError,
@@ -44,16 +45,21 @@ export default function SignInPage() {
       });
 
       if (error) {
-        // 2. Auth error thakle toast dekhabe
         toast.error(error.message || "Invalid email or password!");
         console.error(error.message);
       } else {
-        // 3. Success toast
+        // Issue JWT and store in localStorage for API auth
+        const tokenRes = await fetch("http://localhost:5000/api/auth/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: data.user.email, role: data.user.role || "user" }),
+        });
+        const tokenData = await tokenRes.json();
+        if (tokenData.token) saveToken(tokenData.token);
         toast.success("Welcome back! Signed in successfully.");
         router.push(redirectTo);
       }
     } catch (err) {
-      // 4. Network ba onno kono unknown error handle korbe
       toast.error("Something went wrong. Please try again.");
       console.error(err);
     } finally {
@@ -67,8 +73,6 @@ export default function SignInPage() {
         provider: "google",
         callbackURL: redirectTo,
       });
-      // Note: Social login-e redirect onno page-e niye jay,
-      // tai hothat success toast drissobhuman na-o hote pare callbackURL er karone.
     } catch (err) {
       toast.error("Google sign in failed!");
       console.error("Google sign in failed:", err);

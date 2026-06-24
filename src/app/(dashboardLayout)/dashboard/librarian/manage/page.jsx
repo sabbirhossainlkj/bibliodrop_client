@@ -1,63 +1,57 @@
 "use client";
 
-import EditBook from "@/components/librariansDashboard/EditBook";
+import { authClient } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 export default function BooksPage() {
+  const { data: session } = authClient.useSession();
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/books")
+    if (!session?.user?.email) return;
+    fetch(`http://localhost:5000/api/books?librarianEmail=${session.user.email}`, { credentials: "include" })
       .then((res) => res.json())
-      .then((data) => setBooks(data.data))
-      .catch((error) => {
-        console.error(error);
-        toast.error("Failed to load books!"); // ডাটা লোড না হলে এরর টোস্ট
-      });
-  }, []);
+      .then((data) => setBooks(data.data || []))
+      .catch(() => toast.error("Failed to load books!"));
+  }, [session]);
 
   const handleDelete = async (id) => {
-    // ব্রাউজারের কনফার্মেশন ডায়ালগ
-    const proceed = window.confirm(
-      "Are you sure you want to delete this book?",
-    );
-
-    if (!proceed) return;
-
-    // ডিলিট করার লোডিং টোস্ট চালু করা হলো
+    if (!window.confirm("Are you sure you want to delete this book?")) return;
     const toastId = toast.loading("Deleting book...");
-
     try {
-      const res = await fetch(`http://localhost:5000/api/books/${id}`, {
-        method: "DELETE",
-      });
-
+      const res = await fetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE", credentials: "include" });
       const data = await res.json();
-
       if (res.ok && data.deletedCount > 0) {
-        // সফলভাবে ডিলিট হলে সাকসেস টোস্ট
         toast.success("Book deleted successfully", { id: toastId });
-
-        // স্টেট থেকে বইটিকে রিমুভ করা
-        setBooks((prevBooks) => prevBooks.filter((book) => book._id !== id));
+        setBooks((prev) => prev.filter((book) => book._id !== id));
       } else {
-        // ডাটাবেজে না পাওয়া গেলে এরর টো型স্ট
         toast.error("Book not found or already deleted", { id: toastId });
       }
-    } catch (error) {
-      console.error(error);
-      // নেটওয়ার্ক বা সার্ভার এরর হলে
+    } catch {
       toast.error("Failed to delete book", { id: toastId });
+    }
+  };
+
+  const handleTogglePublish = async (id, currentStatus) => {
+    if (currentStatus === "Pending Approval") return;
+    const newStatus = currentStatus === "Published" ? "Unpublished" : "Published";
+    const endpoint = newStatus === "Published"
+      ? `http://localhost:5000/api/books/publish/${id}`
+      : `http://localhost:5000/api/books/unpublish/${id}`;
+    try {
+      await fetch(endpoint, { method: "PATCH", credentials: "include" });
+      setBooks((prev) => prev.map((b) => b._id === id ? { ...b, status: newStatus } : b));
+      toast.success(`Book ${newStatus.toLowerCase()}`);
+    } catch {
+      toast.error("Failed to update status");
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-sm">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Manage All Books
-      </h1>
-
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Manage Inventory</h1>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -69,81 +63,44 @@ export default function BooksPage() {
               <th className="py-4 px-6 text-right">Actions</th>
             </tr>
           </thead>
-
           <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
-            {books?.map((book) => (
-              <tr
-                key={book._id}
-                className="hover:bg-slate-50/50 transition-colors"
-              >
-                <td className="py-4 px-6 font-medium text-gray-900 max-w-xs break-words">
-                  {book.title}
-                </td>
-
+            {books.map((book) => (
+              <tr key={book._id} className="hover:bg-slate-50/50 transition-colors">
+                <td className="py-4 px-6 font-medium text-gray-900 max-w-xs break-words">{book.title}</td>
                 <td className="py-4 px-6 text-gray-500">{book.category}</td>
-
-                <td className="py-4 px-6 font-semibold text-gray-900">
-                  $
-                  {book.deliveryFee !== undefined
-                    ? Number(book.deliveryFee).toFixed(2)
-                    : "0.00"}
-                </td>
-
+                <td className="py-4 px-6 font-semibold">${Number(book.deliveryFee || 0).toFixed(2)}</td>
                 <td className="py-4 px-6">
-                  {book.status === "Published" ? (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
-                      Published
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-                      Pending Approval
-                    </span>
-                  )}
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
+                    book.status === "Published"
+                      ? "bg-green-50 text-green-700 border-green-100"
+                      : book.status === "Unpublished"
+                      ? "bg-red-50 text-red-700 border-red-100"
+                      : "bg-amber-50 text-amber-700 border-amber-100"
+                  }`}>
+                    {book.status}
+                  </span>
                 </td>
-
                 <td className="py-4 px-6 text-right space-x-3 whitespace-nowrap">
-                  <button
-                    onClick={() => {
-                      console.log("Edit book id:", book._id);
-                    }}
-                    className="text-emerald-600 hover:text-emerald-800 transition-colors"
-                    title="Edit"
+                  <Link
+                    href={`/books/${book._id}`}
+                    className="text-emerald-600 hover:text-emerald-800 text-xs font-medium transition-colors"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-5 h-5 inline"
+                    Edit
+                  </Link>
+                  {book.status !== "Pending Approval" && (
+                    <button
+                      onClick={() => handleTogglePublish(book._id, book.status)}
+                      className="text-indigo-600 hover:text-indigo-800 text-xs font-medium transition-colors"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                      />
-                    </svg>
-                  </button>
-
-                  {/* Delete Button */}
+                      {book.status === "Published" ? "Unpublish" : "Publish"}
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDelete(book._id)}
                     className="text-red-500 hover:text-red-700 transition-colors"
-                    title="Delete"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-5 h-5 inline"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                      />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 inline">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                     </svg>
                   </button>
                 </td>

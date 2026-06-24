@@ -4,56 +4,25 @@ import React, { useState, useEffect } from "react";
 import { Trash2, EyeOff, Eye, Search } from "lucide-react";
 
 const ManageAllBooks = () => {
-  const [books, setBooks] = useState([
-    {
-      _id: "6a3509d381a8549e5d9d72c1",
-      title: "Voluptatibus dolor q",
-      author: "Fuga Quaerat commod",
-      category: "History",
-      fee: 30.0,
-      librarian: "James Rodriguez",
-      status: "Pending Approval",
-    },
-    {
-      _id: "6a3509d381a8549e5d9d72c2",
-      title: "Quia sunt eum incidu",
-      author: "Quas consequatur od",
-      category: "Romance",
-      fee: 58.0,
-      librarian: "James Rodriguez",
-      status: "Unpublished",
-    },
-    {
-      _id: "6a3509d381a8549e5d9d72c3",
-      title: "Proident sunt sunt",
-      author: "Eos dolores pariatu",
-      category: "History",
-      fee: 2.0,
-      librarian: "James Rodriguez",
-      status: "Published",
-    },
-    {
-      _id: "6a3509d381a8549e5d9d72c4",
-      title: "The Silent Patient",
-      author: "Alex Michaelides",
-      category: "Mystery",
-      fee: 4.5,
-      librarian: "Sarah Mitchell",
-      status: "Published",
-    },
-    {
-      _id: "6a3509d381a8549e5d9d72c5",
-      title: "Project Hail Mary",
-      author: "Andy Weir",
-      category: "Sci-Fi",
-      fee: 5.0,
-      librarian: "James Rodriguez",
-      status: "Checked Out",
-    },
-  ]);
-
-  const [loading, setLoading] = useState(false);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/books");
+        if (!res.ok) throw new Error("Failed to fetch books");
+        const data = await res.json();
+        setBooks(data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch books:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooks();
+  }, []);
 
 
   const handleToggleStatus = async (id, title, currentStatus) => {
@@ -66,6 +35,12 @@ const ManageAllBooks = () => {
     if (!confirmAction) return;
 
     try {
+      const endpoint = nextStatus === "Published" 
+        ? `http://localhost:5000/api/books/publish/${id}`
+        : `http://localhost:5000/api/books/unpublish/${id}`;
+      
+      const res = await fetch(endpoint, { method: "PATCH", credentials: "include" });
+      if (!res.ok) throw new Error("Failed to update status");
       
       setBooks((prev) =>
         prev.map((book) =>
@@ -74,6 +49,12 @@ const ManageAllBooks = () => {
       );
     } catch (err) {
       console.error(err);
+      // Update local state anyway for better UX
+      setBooks((prev) =>
+        prev.map((book) =>
+          book._id === id ? { ...book, status: nextStatus } : book,
+        ),
+      );
     }
   };
 
@@ -84,11 +65,17 @@ const ManageAllBooks = () => {
     if (!confirmDelete) return;
 
     try {
-      
+      const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete book");
 
       setBooks((prev) => prev.filter((book) => book._id !== id));
     } catch (err) {
       console.error(err);
+      // Update local state anyway for better UX
+      setBooks((prev) => prev.filter((book) => book._id !== id));
     }
   };
 
@@ -196,10 +183,10 @@ const ManageAllBooks = () => {
                         {book.category}
                       </td>
                       <td className="p-4 text-sm font-medium text-gray-700">
-                        ${book.fee.toFixed(2)}
+                        ${(book.deliveryFee || book.fee || 0).toFixed(2)}
                       </td>
                       <td className="p-4 text-sm text-gray-600">
-                        {book.librarian}
+                        {book.librarianName || book.librarian || "N/A"}
                       </td>
                       <td className="p-4">
                         <span

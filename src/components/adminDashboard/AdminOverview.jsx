@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Users, Book, Truck, DollarSign, TrendingUp } from "lucide-react";
 import {
   PieChart,
@@ -11,20 +11,36 @@ import {
 } from "recharts";
 
 const AdminOverview = () => {
-  const [stats] = useState({
-    totalUsers: 1248,
-    totalBooks: 4520,
-    totalDeliveries: 892,
-    totalRevenue: 24580.0,
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalBooks: 0,
+    totalDeliveries: 0,
+    totalRevenue: 0,
   });
+  const [categoryData, setCategoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [categoryData] = useState([
-    { name: "Sci-Fi", value: 400 },
-    { name: "Fiction", value: 300 },
-    { name: "Biography", value: 200 },
-    { name: "History", value: 150 },
-    { name: "Mystery", value: 180 },
-  ]);
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/stats", { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to fetch stats");
+        const data = await res.json();
+        setStats({
+          totalUsers: data.totalUsers || 0,
+          totalBooks: data.totalBooks || 0,
+          totalDeliveries: data.totalDeliveries || 0,
+          totalRevenue: data.totalRevenue || 0,
+        });
+        setCategoryData(data.categoryData || []);
+      } catch (err) {
+        console.error("Failed to fetch admin stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const COLORS = ["#4f46e5", "#06b6d4", "#10b981", "#f59e0b", "#ec4899"];
 
@@ -58,6 +74,27 @@ const AdminOverview = () => {
       trend: "+18.4% growth",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="p-6 md:p-8 bg-[#f8fafc] min-h-screen text-[#1e293b] font-sans antialiased">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-slate-200 rounded w-48 mb-2"></div>
+            <div className="h-4 bg-slate-200 rounded w-64"></div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm animate-pulse">
+                <div className="h-4 bg-slate-200 rounded w-24 mb-4"></div>
+                <div className="h-8 bg-slate-200 rounded w-32"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8 bg-[#f8fafc] min-h-screen text-[#1e293b] font-sans antialiased">

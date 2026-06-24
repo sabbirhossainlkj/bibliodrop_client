@@ -1,35 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Shield, User, Trash2, Mail, Calendar, RefreshCw } from "lucide-react";
+import { Shield, User, Trash2, Mail, Calendar, RefreshCw, Plus, X } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 const ManageUser = () => {
-  // ডামি ডেটাতে joinDate যুক্ত করা হয়েছে
-  const [users, setUsers] = useState([
-    { _id: "1", name: "Rakib Ahmed", email: "rakib@example.com", role: "user", joinDate: "2024-01-15" },
-    {
-      _id: "2",
-      name: "Sultana Razia",
-      email: "razia@example.com",
-      role: "librarian",
-      joinDate: "2023-11-20"
-    },
-    {
-      _id: "3",
-      name: "Tanvir Hasan",
-      email: "tanvir@example.com",
-      role: "admin",
-      joinDate: "2022-05-10"
-    },
-  ]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [newUser, setNewUser] = useState({ name: "", email: "", role: "user", password: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const res = await fetch("http://localhost:5000/api/users");
+      const res = await fetch("http://localhost:5000/api/users", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
       setUsers(Array.isArray(data) ? data : []);
@@ -44,7 +29,36 @@ const ManageUser = () => {
     fetchUsers();
   }, []);
 
-  // Function to change user role
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Failed to create user");
+        return;
+      }
+
+      setUsers([...users, { ...newUser, _id: data.insertedId, joinDate: new Date().toISOString() }]);
+      setShowModal(false);
+      setNewUser({ name: "", email: "", role: "user", password: "" });
+      alert("User created successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create user");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleRoleChange = async (id, name, newRole) => {
     const confirmChange = window.confirm(
       `Are you sure you want to change the role of "${name}" to "${newRole}"?`,
@@ -55,6 +69,7 @@ const ManageUser = () => {
       const res = await fetch(`http://localhost:5000/api/users/${id}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ role: newRole }),
       });
 
@@ -68,7 +83,6 @@ const ManageUser = () => {
       alert("User role updated successfully.");
     } catch (err) {
       console.error(err);
-
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === id ? { ...user, role: newRole } : user,
@@ -78,7 +92,6 @@ const ManageUser = () => {
     }
   };
 
-  // Function to delete user
   const handleDeleteUser = async (id, name) => {
     const confirmDelete = window.confirm(
       `Are you sure you want to permanently delete "${name}"?`,
@@ -88,6 +101,7 @@ const ManageUser = () => {
     try {
       const res = await fetch(`http://localhost:5000/api/users/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Failed to delete user");
@@ -96,7 +110,6 @@ const ManageUser = () => {
       alert("User deleted successfully.");
     } catch (err) {
       console.error(err);
-
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
       alert("Backend API Error! Local state updated for preview.");
     }
@@ -120,10 +133,13 @@ const ManageUser = () => {
               Update user roles or remove users from the system
             </p>
           </div>
-          <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-semibold border border-blue-100 flex items-center gap-1.5">
-            <User size={16} />
-            Total: {users.length} Users
-          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors"
+          >
+            <Plus size={18} />
+            Add User
+          </button>
         </div>
 
         {/* Table Container */}
@@ -138,7 +154,6 @@ const ManageUser = () => {
                   <th className="p-5 text-left text-sm font-semibold text-gray-600">
                     Email
                   </th>
-                  {/* Join Date হেডার যোগ করা হয়েছে */}
                   <th className="p-5 text-left text-sm font-semibold text-gray-600">
                     Join Date
                   </th>
@@ -173,7 +188,6 @@ const ManageUser = () => {
                       </div>
                     </td>
 
-                    {/* Join Date ডাটা রো যোগ করা হয়েছে */}
                     <td className="p-5 text-gray-600 text-sm">
                       <div className="flex items-center gap-1.5">
                         <Calendar size={14} className="text-gray-400" />
@@ -255,6 +269,99 @@ const ManageUser = () => {
           </div>
         </div>
       </div>
+
+      {/* Add User Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Add New User</h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-lg"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddUser} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter user name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  required
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                >
+                  <option value="user">User</option>
+                  <option value="librarian">Librarian</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter password"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {submitting ? "Creating..." : "Create User"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

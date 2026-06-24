@@ -1,5 +1,6 @@
 "use client";
 import { authClient } from "@/lib/auth-client";
+import { saveToken } from "@/lib/api";
 import { Check } from "@gravity-ui/icons";
 import {
   Button,
@@ -18,7 +19,7 @@ import { AiFillGoogleCircle } from "react-icons/ai";
 
 const signupPage = () => {
   const router = useRouter();
-  const [role, setRole] = useState("users");
+  const [role, setRole] = useState("user");
 
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
@@ -29,7 +30,6 @@ const signupPage = () => {
     const image = e.target.image.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
-    // console.log({ name, image, email, password });
 
     const { data, error } = await authClient.signUp.email({
       name,
@@ -39,7 +39,15 @@ const signupPage = () => {
       role,
     });
 
-    // console.log({ data, error });
+    if (!error && data?.user) {
+      const tokenRes = await fetch("http://localhost:5000/api/auth/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.user.email, role: data.user.role || role }),
+      });
+      const tokenData = await tokenRes.json();
+      if (tokenData.token) saveToken(tokenData.token);
+    }
 
     router.push(redirectTo);
   };
@@ -112,11 +120,11 @@ const signupPage = () => {
           <Label>Subscription plan</Label>
           <RadioGroup
             onChange={(value) => setRole(value)}
-            defaultValue="users"
+            defaultValue="user"
             name="role"
             orientation="horizontal"
           >
-            <Radio value="users">
+            <Radio value="user">
               <Radio.Content>
                 <Radio.Control>
                   <Radio.Indicator />

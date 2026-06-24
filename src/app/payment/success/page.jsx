@@ -1,188 +1,77 @@
 import { stripe } from "@/lib/stripe";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function SuccessPage({ searchParams }) {
   const { session_id } = await searchParams;
 
-
-  if (!session_id) {
-    throw new Error("Please provide a valid session_id (`cs_test_...`)");
-  }
+  if (!session_id) redirect("/");
 
   let session;
   try {
-    session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ["payment_intent"],
-    });
-  } catch (error) {
-    console.error("Stripe Session Error:", error);
-    throw new Error(
-      "Something went wrong while retrieving the payment status.",
-    );
+    session = await stripe.checkout.sessions.retrieve(session_id);
+  } catch {
+    redirect("/");
   }
 
-  const { status, customer_details } = session;
-  const customerEmail = customer_details?.email || "your email";
+  if (session.status === "open") redirect("/");
 
-  if (status === "open") {
-    return redirect("/");
-  }
+  if (session.status === "complete") {
+    const { bookId, userId, userEmail, deliveryFee } = session.metadata || {};
 
-  if (status === "complete") {
+    // Create the delivery record now that payment is confirmed
+    if (bookId && userId) {
+      try {
+        await fetch("http://localhost:5000/api/deliveries", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-secret": process.env.INTERNAL_SECRET,
+          },
+          body: JSON.stringify({ userId, userEmail, bookId, deliveryFee: Number(deliveryFee) }),
+        });
+      } catch (err) {
+        console.error("Failed to create delivery:", err);
+      }
+    }
+
     return (
-      <section style={styles.container}>
-        <div style={styles.card}>
-          <div style={styles.iconContainer}>
-            <svg
-              style={styles.icon}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              ></path>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center">
+          <div className="mx-auto w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-9 h-9 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
 
-          <h2 style={styles.heading}>Payment Successful!</h2>
-          <p style={styles.subtext}>
-            Thank you for your purchase. Your order has been successfully
-            processed.
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            Your delivery request has been placed. The librarian will dispatch your book shortly.
           </p>
 
-          <div style={styles.divider} />
-
-          <div style={styles.infoBox}>
-            <span style={styles.infoLabel}>CONFIRMATION EMAIL SENT TO</span>
-            <p style={styles.infoEmail}>{customerEmail}</p>
+          <div className="bg-gray-50 rounded-xl p-4 text-left mb-6">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Confirmation sent to</p>
+            <p className="text-sm font-semibold text-gray-700">{session.customer_details?.email}</p>
           </div>
 
-          <p style={styles.supportText}>
-            Have questions? Contact us at{" "}
-            <a href="mailto:orders@example.com" style={styles.link}>
-              orders@example.com
-            </a>
-          </p>
-
-          <div style={styles.buttonContainer}>
-            <Link href="/" style={styles.button}>
-              Go Back Home
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/dashboard/user/delivery"
+              className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition text-sm"
+            >
+              View Delivery Status
+            </Link>
+            <Link
+              href="/books"
+              className="block w-full border border-gray-200 hover:border-gray-300 text-gray-700 font-medium py-3 rounded-xl transition text-sm"
+            >
+              Browse More Books
             </Link>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
-  return (
-    <div style={styles.container}>
-      <p style={{ color: "#666" }}>Verifying your payment status...</p>
-    </div>
-  );
+  redirect("/");
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    minHeight: "85vh",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f9fafb",
-    padding: "20px",
-    fontFamily: "system-ui, -apple-system, sans-serif",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "420px",
-    backgroundColor: "#ffffff",
-    padding: "40px 32px",
-    borderRadius: "16px",
-    boxShadow:
-      "0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
-    border: "1px solid #f3f4f6",
-    textAlign: "center",
-  },
-  iconContainer: {
-    margin: "0 auto",
-    display: "flex",
-    height: "64px",
-    width: "64px",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "50%",
-    backgroundColor: "#f0fdf4",
-  },
-  icon: {
-    height: "36px",
-    width: "36px",
-    color: "#22c55e",
-  },
-  heading: {
-    marginTop: "24px",
-    fontSize: "24px",
-    fontWeight: "700",
-    color: "#111827",
-    letterSpacing: "-0.5px",
-  },
-  subtext: {
-    marginTop: "8px",
-    fontSize: "14px",
-    color: "#6b7280",
-    lineHeight: "1.5",
-  },
-  divider: {
-    margin: "24px 0",
-    borderTop: "1px solid #f3f4f6",
-  },
-  infoBox: {
-    backgroundColor: "#f9fafb",
-    padding: "16px",
-    borderRadius: "12px",
-    textAlign: "left",
-  },
-  infoLabel: {
-    fontSize: "11px",
-    fontWeight: "600",
-    color: "#9ca3af",
-    letterSpacing: "0.5px",
-  },
-  infoEmail: {
-    marginTop: "4px",
-    fontSize: "14px",
-    fontWeight: "600",
-    color: "#374151",
-    wordBreak: "break-all",
-  },
-  supportText: {
-    marginTop: "24px",
-    fontSize: "13px",
-    color: "#6b7280",
-  },
-  link: {
-    color: "#4f46e5",
-    textDecoration: "underline",
-    fontWeight: "500",
-  },
-  buttonContainer: {
-    marginTop: "32px",
-  },
-  button: {
-    display: "block",
-    width: "100%",
-    boxSizing: "border-box",
-    backgroundColor: "#111827",
-    color: "#ffffff",
-    padding: "12px 16px",
-    borderRadius: "10px",
-    fontSize: "14px",
-    fontWeight: "600",
-    textDecoration: "none",
-    transition: "background-color 0.2s",
-  },
-};

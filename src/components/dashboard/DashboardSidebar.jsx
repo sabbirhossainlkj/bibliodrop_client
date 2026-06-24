@@ -27,26 +27,20 @@ export default async function DashboardSidebar() {
   });
 
   const user = session?.user;
-  const role = user?.role || "librarian";
+  const role = user?.role || "users";
 
   const dashboardItems = {
+    user: [
+      { icon: LayoutDashboard, href: "/dashboard/user", label: "Overview" },
+      { icon: History, href: "/dashboard/user/delivery", label: "Delivery History" },
+      { icon: BookOpen, href: "/dashboard/user/readinglist", label: "My Reading List" },
+      { icon: MessageSquare, href: "/dashboard/user/reviews", label: "My Reviews" },
+    ],
     users: [
       { icon: LayoutDashboard, href: "/dashboard/user", label: "Overview" },
-      {
-        icon: History,
-        href: "/dashboard/user/delivery",
-        label: "Delivery History",
-      },
-      {
-        icon: BookOpen,
-        href: "/dashboard/user/readinglist",
-        label: "My Reading List",
-      },
-      {
-        icon: MessageSquare,
-        href: "/dashboard/user/reviews",
-        label: "My Reviews",
-      },
+      { icon: History, href: "/dashboard/user/delivery", label: "Delivery History" },
+      { icon: BookOpen, href: "/dashboard/user/readinglist", label: "My Reading List" },
+      { icon: MessageSquare, href: "/dashboard/user/reviews", label: "My Reviews" },
     ],
     librarian: [
       {
@@ -121,17 +115,17 @@ export default async function DashboardSidebar() {
 
           <div className="overflow-hidden">
             <p className="text-white text-sm font-bold truncate leading-tight">
-              {user.name || "Gamer/User"}
+              {user?.name || "Guest"}
             </p>
             <span
-              className={`text-[10px] font-bold uppercase tracking-wider ${role === "users"
+              className={`text-[10px] font-bold uppercase tracking-wider ${role === "users" || role === "user"
                   ? "text-yellow-400"
                   : role === "librarian"
                     ? "text-green-400"
                     : "text-red-400"
                 }`}
             >
-              {role === "users" ? "User" : role}
+              {role === "users" || role === "user" ? "User" : role}
             </span>
           </div>
         </div>
