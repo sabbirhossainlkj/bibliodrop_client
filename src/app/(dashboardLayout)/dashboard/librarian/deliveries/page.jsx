@@ -1,5 +1,6 @@
 "use client";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, ensureToken } from "@/lib/api";
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -11,8 +12,9 @@ export default function ManageDeliveries() {
   const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
+    ensureToken(session);
     if (isPending || !session?.user?.email) return;
-    fetch(`http://localhost:5000/api/deliveries?librarianEmail=${encodeURIComponent(session.user.email)}`, { credentials: "include" })
+    apiFetch(`http://localhost:5000/api/deliveries?librarianEmail=${encodeURIComponent(session.user.email)}`)
       .then((res) => res.json())
       .then((data) => setDeliveries(Array.isArray(data) ? data : []))
       .catch(() => toast.error("Failed to load deliveries"));
@@ -20,10 +22,9 @@ export default function ManageDeliveries() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await fetch(`http://localhost:5000/api/deliveries/${id}`, {
+      await apiFetch(`http://localhost:5000/api/deliveries/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ status: newStatus }),
       });
       setDeliveries((prev) => prev.map((d) => d._id === id ? { ...d, status: newStatus } : d));

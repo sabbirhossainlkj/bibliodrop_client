@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Shield, User, Trash2, Mail, Calendar, RefreshCw, Plus, X } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ensureToken } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 
 const ManageUser = () => {
   const [users, setUsers] = useState([]);
@@ -10,11 +11,12 @@ const ManageUser = () => {
   const [showModal, setShowModal] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "user", password: "" });
   const [submitting, setSubmitting] = useState(false);
+  const { data: session } = authClient.useSession();
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/users", { credentials: "include" });
+      const res = await apiFetch("http://localhost:5000/api/users");
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
       setUsers(Array.isArray(data) ? data : []);
@@ -26,8 +28,9 @@ const ManageUser = () => {
   };
 
   useEffect(() => {
+    ensureToken(session);
     fetchUsers();
-  }, []);
+  }, [session]);
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -66,10 +69,9 @@ const ManageUser = () => {
     if (!confirmChange) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${id}/role`, {
+      const res = await apiFetch(`http://localhost:5000/api/users/${id}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ role: newRole }),
       });
 
@@ -99,9 +101,8 @@ const ManageUser = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${id}`, {
+      const res = await apiFetch(`http://localhost:5000/api/users/${id}`, {
         method: "DELETE",
-        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Failed to delete user");

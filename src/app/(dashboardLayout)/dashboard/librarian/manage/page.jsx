@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, ensureToken } from "@/lib/api";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -10,8 +11,9 @@ export default function BooksPage() {
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
+    ensureToken(session);
     if (!session?.user?.email) return;
-    fetch(`http://localhost:5000/api/books?librarianEmail=${session.user.email}`, { credentials: "include" })
+    apiFetch(`http://localhost:5000/api/books?librarianEmail=${session.user.email}&limit=1000`)
       .then((res) => res.json())
       .then((data) => setBooks(data.data || []))
       .catch(() => toast.error("Failed to load books!"));
@@ -21,7 +23,7 @@ export default function BooksPage() {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
     const toastId = toast.loading("Deleting book...");
     try {
-      const res = await fetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await apiFetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok && data.deletedCount > 0) {
         toast.success("Book deleted successfully", { id: toastId });
@@ -41,7 +43,7 @@ export default function BooksPage() {
       ? `http://localhost:5000/api/books/publish/${id}`
       : `http://localhost:5000/api/books/unpublish/${id}`;
     try {
-      await fetch(endpoint, { method: "PATCH", credentials: "include" });
+      await apiFetch(endpoint, { method: "PATCH" });
       setBooks((prev) => prev.map((b) => b._id === id ? { ...b, status: newStatus } : b));
       toast.success(`Book ${newStatus.toLowerCase()}`);
     } catch {

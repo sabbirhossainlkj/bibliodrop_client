@@ -80,76 +80,28 @@ export default function WhyChooseUs() {
                 y: -10,
                 scale: 1.03,
               }}
-              className="
-              group
-              relative
-              p-8
-              rounded-3xl
-              bg-white/10
-              backdrop-blur-lg
-              border
-              border-white/20
-              shadow-xl
-              hover:shadow-cyan-500/20
-              transition
-              "
+              className="group relative p-8 rounded-3xl bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl hover:shadow-cyan-500/20 transition"
             >
               <div
-                className={`
-                w-20 h-20
-                mx-auto
-                flex
-                items-center
-                justify-center
-                rounded-2xl
-                text-4xl
-                bg-gradient-to-r
-                ${item.color}
-                shadow-lg
-                group-hover:rotate-6
-                transition
-                `}
+                className={`w-20 h-20 mx-auto flex items-center justify-center rounded-2xl text-4xl bg-gradient-to-r ${item.color} shadow-lg group-hover:rotate-6 transition`}
               >
                 {item.icon}
               </div>
 
               <h3
-                className="
-                mt-6
-                text-xl
-                font-bold
-                text-white
-                text-center
-                "
+                className="mt-6 text-xl font-bold text-white text-center"
               >
                 {item.title}
               </h3>
 
               <p
-                className="
-                mt-3
-                text-gray-300
-                text-center
-                leading-relaxed
-                "
+                className="mt-3 text-gray-300 text-center leading-relaxed"
               >
                 {item.description}
               </p>
 
               <div
-                className="
-                absolute
-                inset-x-10
-                bottom-0
-                h-1
-                bg-gradient-to-r
-                from-cyan-400
-                to-purple-500
-                rounded-full
-                opacity-0
-                group-hover:opacity-100
-                transition
-                "
+                className="absolute inset-x-10 bottom-0 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition"
               />
             </motion.div>
           ))}

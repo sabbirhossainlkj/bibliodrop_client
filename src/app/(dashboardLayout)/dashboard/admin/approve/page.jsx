@@ -1,10 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Check, Trash2, AlertCircle } from "lucide-react";
+import { apiFetch, ensureToken } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 
 const ApprovePage = () => {
   const [pendingBooks, setPendingBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    ensureToken(session);
+  }, [session]);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/books?status=Pending Approval")
@@ -16,7 +23,7 @@ const ApprovePage = () => {
 
   const handleApprove = async (id, title) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/books/publish/${id}`, { method: "PATCH", credentials: "include" });
+      const res = await apiFetch(`http://localhost:5000/api/books/publish/${id}`, { method: "PATCH" });
       if (!res.ok) throw new Error();
       setPendingBooks((prev) => prev.filter((b) => b._id !== id));
       alert(`"${title}" has been approved & published!`);
@@ -28,7 +35,7 @@ const ApprovePage = () => {
   const handleDelete = async (id, title) => {
     if (!window.confirm(`Delete "${title}" from the queue?`)) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await apiFetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       setPendingBooks((prev) => prev.filter((b) => b._id !== id));
     } catch {

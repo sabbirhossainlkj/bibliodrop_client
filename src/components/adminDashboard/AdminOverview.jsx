@@ -9,6 +9,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { apiFetch, ensureToken } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 
 const AdminOverview = () => {
   const [stats, setStats] = useState({
@@ -19,11 +21,16 @@ const AdminOverview = () => {
   });
   const [categoryData, setCategoryData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    ensureToken(session);
+  }, [session]);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/stats", { credentials: "include" });
+        const res = await apiFetch("http://localhost:5000/api/admin/stats");
         if (!res.ok) throw new Error("Failed to fetch stats");
         const data = await res.json();
         setStats({

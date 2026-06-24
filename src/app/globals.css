@@ -1,2 +1,16 @@
 @import "@heroui/styles";
 @import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --text: #1e1e2f;
+}
+
+.dark {
+  --bg: #1e1e2f;
+  --text: #ffffff;
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}

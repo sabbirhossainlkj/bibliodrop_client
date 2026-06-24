@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { apiFetch, ensureToken } from "@/lib/api";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
@@ -12,8 +13,9 @@ export default function DashboardOverview() {
   const [mostRequested, setMostRequested] = useState([]);
 
   useEffect(() => {
+    ensureToken(session);
     if (!session?.user?.email) return;
-    fetch(`http://localhost:5000/api/dashboard/librarian/${session.user.email}/stats`, { credentials: "include" })
+    apiFetch(`http://localhost:5000/api/dashboard/librarian/${session.user.email}/stats`)
       .then((res) => res.json())
       .then((data) => {
         setStats({

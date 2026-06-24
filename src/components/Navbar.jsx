@@ -15,6 +15,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   const { data: session, isPending } = authClient.useSession();
   console.log(session, isPending);
@@ -41,7 +42,20 @@ const Navbar = () => {
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window === "undefined") return;
+    const theme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldBeDark = theme === "dark" || (!theme && prefersDark);
+    setIsDark(shouldBeDark);
+    document.documentElement.classList.toggle("dark", shouldBeDark);
   }, []);
+
+  const toggleDarkMode = () => {
+    const newDark = !isDark;
+    setIsDark(newDark);
+    localStorage.setItem("theme", newDark ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", newDark);
+  };
 
   // SignOut টোস্ট ইমপ্লিমেন্টেশন
   const handleSingOut = async () => {
@@ -90,6 +104,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           <Button
             isIconOnly
+            onClick={toggleDarkMode}
             className="bg-white/80 hover:bg-white text-[#1E1E2F] rounded-xl shadow-sm min-w-10 w-10 h-10 transition-all duration-200 hover:rotate-12"
             variant="flat"
             aria-label="Toggle Theme"
@@ -135,6 +150,7 @@ const Navbar = () => {
         <div className="md:hidden flex items-center gap-2">
           <Button
             isIconOnly
+            onClick={toggleDarkMode}
             className="bg-white text-[#1E1E2F] rounded-xl shadow-sm min-w-10 w-10 h-10"
             variant="flat"
             aria-label="Toggle Theme"

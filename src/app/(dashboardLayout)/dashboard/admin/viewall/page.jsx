@@ -1,24 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  DollarSign,
-  Calendar,
-  Hash,
-  Mail,
-  UserCheck,
-} from "lucide-react";
+import { Search, DollarSign, Calendar, Hash, Mail, UserCheck } from "lucide-react";
+import { apiFetch, ensureToken } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 
 const ViewAllTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    ensureToken(session);
+  }, [session]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/transactions", { credentials: "include" });
+        const res = await apiFetch("http://localhost:5000/api/transactions");
         if (!res.ok) throw new Error("Failed to fetch transactions");
         const data = await res.json();
         setTransactions(Array.isArray(data) ? data : []);

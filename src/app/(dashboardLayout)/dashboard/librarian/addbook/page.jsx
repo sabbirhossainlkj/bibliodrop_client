@@ -1,6 +1,7 @@
 "use client";
 import { authClient } from "@/lib/auth-client";
 import { imageUpload } from "@/lib/ImageUpload";
+import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -47,12 +48,11 @@ export default function AddBookForm() {
         createdAt: new Date().toISOString(),
       };
 
-      const res = await fetch("http://localhost:5000/api/books", {
+      const res = await apiFetch("http://localhost:5000/api/books", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(bookData),
       });
 
