@@ -46,7 +46,7 @@ export default function BookPage() {
       if (maxFee !== "") params.append("maxFee", maxFee);
       if (available !== "") params.append("available", available);
 
-      const res = await fetch(`http://localhost:5000/api/books?${params}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books?${params}`);
       if (!res.ok) throw new Error("Failed to fetch books");
 
       const result = await res.json();

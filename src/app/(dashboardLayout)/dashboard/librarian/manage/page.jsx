@@ -13,7 +13,7 @@ export default function BooksPage() {
   useEffect(() => {
     ensureToken(session);
     if (!session?.user?.email) return;
-    apiFetch(`http://localhost:5000/api/books?librarianEmail=${session.user.email}&limit=1000`)
+    apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books?librarianEmail=${session.user.email}&limit=1000`)
       .then((res) => res.json())
       .then((data) => setBooks(data.data || []))
       .catch(() => toast.error("Failed to load books!"));
@@ -23,7 +23,7 @@ export default function BooksPage() {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
     const toastId = toast.loading("Deleting book...");
     try {
-      const res = await apiFetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok && data.deletedCount > 0) {
         toast.success("Book deleted successfully", { id: toastId });
@@ -40,8 +40,8 @@ export default function BooksPage() {
     if (currentStatus === "Pending Approval") return;
     const newStatus = currentStatus === "Published" ? "Unpublished" : "Published";
     const endpoint = newStatus === "Published"
-      ? `http://localhost:5000/api/books/publish/${id}`
-      : `http://localhost:5000/api/books/unpublish/${id}`;
+      ? `${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/publish/${id}`
+      : `${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/unpublish/${id}`;
     try {
       await apiFetch(endpoint, { method: "PATCH" });
       setBooks((prev) => prev.map((b) => b._id === id ? { ...b, status: newStatus } : b));

@@ -127,7 +127,6 @@ MONGODB_URI=your_mongodb_connection_string
 
 AUTH_SECRET=your_auth_secret
 
-NEXT_PUBLIC_API_URL=http://localhost:5000
 
 STRIPE_SECRET_KEY=your_stripe_secret_key
 

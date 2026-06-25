@@ -18,7 +18,7 @@ const UserOverview = () => {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    apiFetch(`http://localhost:5000/api/dashboard/user/${userId}`)
+    apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/dashboard/user/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setStats({

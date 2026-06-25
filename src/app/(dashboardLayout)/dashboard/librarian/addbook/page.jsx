@@ -48,7 +48,7 @@ export default function AddBookForm() {
         createdAt: new Date().toISOString(),
       };
 
-      const res = await apiFetch("http://localhost:5000/api/books", {
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

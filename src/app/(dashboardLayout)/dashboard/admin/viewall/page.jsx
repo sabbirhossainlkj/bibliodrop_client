@@ -18,7 +18,7 @@ const ViewAllTransactions = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await apiFetch("http://localhost:5000/api/transactions");
+        const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`);
         if (!res.ok) throw new Error("Failed to fetch transactions");
         const data = await res.json();
         setTransactions(Array.isArray(data) ? data : []);

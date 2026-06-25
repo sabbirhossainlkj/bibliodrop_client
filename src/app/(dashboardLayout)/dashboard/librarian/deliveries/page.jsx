@@ -14,7 +14,7 @@ export default function ManageDeliveries() {
   useEffect(() => {
     ensureToken(session);
     if (isPending || !session?.user?.email) return;
-    apiFetch(`http://localhost:5000/api/deliveries?librarianEmail=${encodeURIComponent(session.user.email)}`)
+    apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/deliveries?librarianEmail=${encodeURIComponent(session.user.email)}`)
       .then((res) => res.json())
       .then((data) => setDeliveries(Array.isArray(data) ? data : []))
       .catch(() => toast.error("Failed to load deliveries"));
@@ -22,7 +22,7 @@ export default function ManageDeliveries() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await apiFetch(`http://localhost:5000/api/deliveries/${id}`, {
+      await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/deliveries/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

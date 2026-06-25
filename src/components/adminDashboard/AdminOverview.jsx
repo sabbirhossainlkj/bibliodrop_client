@@ -30,7 +30,7 @@ const AdminOverview = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await apiFetch("http://localhost:5000/api/admin/stats");
+        const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/admin/stats`);
         if (!res.ok) throw new Error("Failed to fetch stats");
         const data = await res.json();
         setStats({

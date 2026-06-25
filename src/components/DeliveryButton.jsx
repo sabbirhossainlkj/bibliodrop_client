@@ -25,7 +25,7 @@ export default function DeliveryButton({ bookId, librarianEmail, serverDisabled,
     if (user.id) params.set("userId", user.id);
     if (user.email) params.set("userEmail", user.email);
 
-    fetch(`http://localhost:5000/api/deliveries/check?${params}`)
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/deliveries/check?${params}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.exists) {

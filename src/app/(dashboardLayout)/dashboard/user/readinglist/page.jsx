@@ -13,7 +13,7 @@ const ReadingList = () => {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    apiFetch(`http://localhost:5000/api/dashboard/user/${userId}/reading-list`)
+    apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/dashboard/user/${userId}/reading-list`)
       .then((res) => res.json())
       .then((data) => setBooks(Array.isArray(data) ? data : []))
       .catch(console.error)

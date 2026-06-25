@@ -12,7 +12,7 @@ export const ensureToken = async (session) => {
   
   // Fetch and save token for existing session
   try {
-    const res = await fetch("http://localhost:5000/api/auth/token", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: session.user.email, role: session.user.role || "user" }),

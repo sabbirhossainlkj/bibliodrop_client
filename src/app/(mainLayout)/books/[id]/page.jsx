@@ -8,7 +8,7 @@ import DeliveryButton from "@/components/DeliveryButton";
 const bookDetailsPage = async ({ params }) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}`, {
     cache: "no-store",
   });
 
@@ -39,7 +39,7 @@ const bookDetailsPage = async ({ params }) => {
       if (currentUser.id) params.set("userId", currentUser.id);
       if (currentUser.email) params.set("userEmail", currentUser.email);
       const deliveryRes = await fetch(
-        `http://localhost:5000/api/deliveries/check?${params}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/deliveries/check?${params}`,
         { cache: "no-store" }
       );
       const deliveryData = await deliveryRes.json();
@@ -59,7 +59,7 @@ const bookDetailsPage = async ({ params }) => {
   const handleDelete = async () => {
     "use server";
     try {
-      const deleteRes = await fetch(`http://localhost:5000/api/books/${id}`, {
+      const deleteRes = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}`, {
         method: "DELETE",
         headers: { "x-internal-secret": process.env.INTERNAL_SECRET },
       });
@@ -75,7 +75,7 @@ const bookDetailsPage = async ({ params }) => {
   const handleUnpublish = async () => {
     "use server";
     try {
-      await fetch(`http://localhost:5000/api/books/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublished: false }),
@@ -91,7 +91,7 @@ const bookDetailsPage = async ({ params }) => {
     if (!currentUser) redirect("/signin");
 
     try {
-      await fetch(`http://localhost:5000/api/wishlist`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/wishlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: currentUser.id, bookId: book._id }),
@@ -109,7 +109,7 @@ const bookDetailsPage = async ({ params }) => {
     const comment = formData.get("comment");
 
     try {
-      await fetch(`http://localhost:5000/api/books/${id}/reviews`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -36,7 +36,7 @@ export default function EditBookForm({ book }) {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/books/${book?._id || book?.id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${book?._id || book?.id}`,
         {
           method: "PATCH",
           headers: {

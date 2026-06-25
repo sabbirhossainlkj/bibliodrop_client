@@ -14,7 +14,7 @@ const ApprovePage = () => {
   }, [session]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/books?status=Pending Approval")
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books?status=Pending Approval`)
       .then((res) => res.json())
       .then((data) => setPendingBooks(data.data || []))
       .catch(console.error)
@@ -23,7 +23,7 @@ const ApprovePage = () => {
 
   const handleApprove = async (id, title) => {
     try {
-      const res = await apiFetch(`http://localhost:5000/api/books/publish/${id}`, { method: "PATCH" });
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/publish/${id}`, { method: "PATCH" });
       if (!res.ok) throw new Error();
       setPendingBooks((prev) => prev.filter((b) => b._id !== id));
       alert(`"${title}" has been approved & published!`);
@@ -35,7 +35,7 @@ const ApprovePage = () => {
   const handleDelete = async (id, title) => {
     if (!window.confirm(`Delete "${title}" from the queue?`)) return;
     try {
-      const res = await apiFetch(`http://localhost:5000/api/books/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       setPendingBooks((prev) => prev.filter((b) => b._id !== id));
     } catch {

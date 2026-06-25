@@ -47,7 +47,7 @@ export default function FeaturedBooks() {
 
     const fetchBooks = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/featured", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/featured`, {
           signal: controller.signal,
         });
         const data = await res.json();

@@ -15,7 +15,7 @@ export default function DashboardOverview() {
   useEffect(() => {
     ensureToken(session);
     if (!session?.user?.email) return;
-    apiFetch(`http://localhost:5000/api/dashboard/librarian/${session.user.email}/stats`)
+    apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/dashboard/librarian/${session.user.email}/stats`)
       .then((res) => res.json())
       .then((data) => {
         setStats({

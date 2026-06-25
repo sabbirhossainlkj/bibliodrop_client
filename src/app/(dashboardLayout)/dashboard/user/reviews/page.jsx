@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch } from "@/lib/api";
 
-const BASE = "http://localhost:5000";
+const BASE = `${process.env.NEXT_PUBLIC_SERVER_URL}`;
 
 const ReviewsPage = () => {
   const { data: session } = authClient.useSession();

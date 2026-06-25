@@ -22,7 +22,7 @@ export default async function SuccessPage({ searchParams }) {
     // Create the delivery record now that payment is confirmed
     if (bookId && userId) {
       try {
-        await fetch("http://localhost:5000/api/deliveries", {
+        await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/deliveries`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

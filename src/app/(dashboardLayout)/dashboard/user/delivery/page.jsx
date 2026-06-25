@@ -12,7 +12,7 @@ const DeliveryHistory = () => {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    apiFetch(`http://localhost:5000/api/dashboard/user/${userId}/deliveries`)
+    apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/dashboard/user/${userId}/deliveries`)
       .then((res) => res.json())
       .then((data) => setDeliveries(Array.isArray(data) ? data : []))
       .catch(console.error)

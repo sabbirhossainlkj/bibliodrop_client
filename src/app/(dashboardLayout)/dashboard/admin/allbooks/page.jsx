@@ -11,7 +11,7 @@ const ManageAllBooks = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/books");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books`);
         if (!res.ok) throw new Error("Failed to fetch books");
         const data = await res.json();
         setBooks(data.data || []);
@@ -36,8 +36,8 @@ const ManageAllBooks = () => {
 
     try {
       const endpoint = nextStatus === "Published" 
-        ? `http://localhost:5000/api/books/publish/${id}`
-        : `http://localhost:5000/api/books/unpublish/${id}`;
+        ? `${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/publish/${id}`
+        : `${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/unpublish/${id}`;
       
       const res = await fetch(endpoint, { method: "PATCH", credentials: "include" });
       if (!res.ok) throw new Error("Failed to update status");
@@ -64,7 +64,7 @@ const ManageAllBooks = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/books/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

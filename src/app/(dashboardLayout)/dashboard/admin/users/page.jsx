@@ -16,7 +16,7 @@ const ManageUser = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await apiFetch("http://localhost:5000/api/users");
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users`);
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
       setUsers(Array.isArray(data) ? data : []);
@@ -69,7 +69,7 @@ const ManageUser = () => {
     if (!confirmChange) return;
 
     try {
-      const res = await apiFetch(`http://localhost:5000/api/users/${id}/role`, {
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${id}/role`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: newRole }),
@@ -101,7 +101,7 @@ const ManageUser = () => {
     if (!confirmDelete) return;
 
     try {
-      const res = await apiFetch(`http://localhost:5000/api/users/${id}`, {
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${id}`, {
         method: "DELETE",
       });
 
