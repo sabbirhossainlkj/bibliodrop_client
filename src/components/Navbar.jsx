@@ -9,8 +9,7 @@ import { FiMoon, FiMenu, FiX } from "react-icons/fi";
 import { authClient } from "@/lib/auth-client";
 import { useSession } from "@/lib/auth-client";
 import { clearToken } from "@/lib/api";
-import toast from "react-hot-toast"; // react-hot-toast ইম্পোর্ট করা হলো
-
+import toast from "react-hot-toast"; 
 const Navbar = () => {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);

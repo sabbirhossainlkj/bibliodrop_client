@@ -49,7 +49,6 @@ const ManageAllBooks = () => {
       );
     } catch (err) {
       console.error(err);
-      // Update local state anyway for better UX
       setBooks((prev) =>
         prev.map((book) =>
           book._id === id ? { ...book, status: nextStatus } : book,
@@ -219,7 +218,6 @@ const ManageAllBooks = () => {
                             )}
                           </button>
 
-                          {/* Delete Button */}
                           <button
                             onClick={() =>
                               handleDeleteBook(book._id, book.title)

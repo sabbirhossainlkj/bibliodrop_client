@@ -143,7 +143,6 @@ const ManageUser = () => {
           </button>
         </div>
 
-        {/* Table Container */}
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
@@ -271,7 +270,6 @@ const ManageUser = () => {
         </div>
       </div>
 
-      {/* Add User Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">

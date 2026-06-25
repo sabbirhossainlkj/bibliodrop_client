@@ -27,7 +27,6 @@ export default function BookPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Reset to page 1 on any filter change
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch, genre, sortBy, order, minFee, maxFee, available]);
@@ -90,7 +89,6 @@ export default function BookPage() {
         </span>
       </div>
 
-      {/* Filters */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 bg-gray-50 p-4 rounded-xl border">
         <input
           type="text"
@@ -130,7 +128,6 @@ export default function BookPage() {
           <option value="desc">Descending</option>
         </select>
 
-        {/* Delivery fee range */}
         <input
           type="number"
           placeholder="Min Delivery Fee ($)"
@@ -148,7 +145,6 @@ export default function BookPage() {
           className="rounded-lg border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border bg-white text-gray-900"
         />
 
-        {/* Availability filter */}
         <select
           value={available}
           onChange={(e) => setAvailable(e.target.value)}
@@ -176,7 +172,6 @@ export default function BookPage() {
         </button>
       </div>
 
-      {/* Book Grid */}
       {loading ? (
         <div className="text-center py-12">
           <p className="text-gray-500 font-medium animate-pulse">Loading books...</p>
@@ -194,7 +189,6 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-10 flex items-center justify-center gap-2">
           <button
